@@ -1,0 +1,32 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Laravel
+backend/.env
+backend/vendor/
+backend/storage/logs/
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/bootstrap/cache/
+
+# Build
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ionic / Capacitor
+admin/android/
+admin/ios/
