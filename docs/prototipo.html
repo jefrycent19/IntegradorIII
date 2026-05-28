@@ -1,0 +1,3800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Motos Vázquez - Sistema de Citas</title>
+    
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fuente moderna -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+    
+    <!-- Chart.js para gráficas -->
+    <!-- Ya no se usa, eliminado -->
+    
+    <style>
+        /* Configuración de colores personalizada - Corporativo */
+        :root {
+            --azul-oscuro: #0F2A3D;
+            --azul-profesional: #163449;
+            --gris-oscuro: #1F2937;
+            --gris-medio: #4B5563;
+            --gris-claro: #E2E8F0;
+            --verde: #22C55E;
+            --naranja: #F59E0B;
+            --rojo: #DC2626;
+            --fondo-claro: #F1F5F9;
+        }
+        
+        body {
+            background: radial-gradient(circle at top, #F8FAFC 0%, #E2E8F0 45%, #CBD5E1 100%);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        /* Animación para la barra de progreso */
+        @keyframes pulse-step {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(26, 94, 168, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(26, 94, 168, 0);
+            }
+        }
+        
+        .step-active {
+            animation: pulse-step 2s infinite;
+        }
+        
+        /* Transiciones suaves entre pantallas */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Estilos personalizados para badges */
+        .badge-agendado {
+            background-color: #1A5EA8;
+            color: white;
+        }
+        
+        .badge-espera {
+            background-color: #FFB366;
+            color: #333;
+        }
+        
+        .badge-revision {
+            background-color: #FFD700;
+            color: #333;
+        }
+        
+        .badge-mantenimiento {
+            background-color: #EF9F27;
+            color: white;
+        }
+        
+        .badge-listo {
+            background-color: #1D9E75;
+            color: white;
+        }
+        
+        .badge-entregado {
+            background-color: #9CA3AF;
+            color: white;
+        }
+        
+        /* Barra de navegación inferior */
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid rgba(15, 42, 61, 0.08);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 40;
+        }
+        
+        .nav-bottom.active {
+            display: flex;
+        }
+        
+        /* Estilos para el chat */
+        .chat-bubble {
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        
+        .chat-bubble.own {
+            background-color: var(--azul-oscuro);
+            color: white;
+        }
+        
+        .chat-bubble.other {
+            background-color: #E5E7EB;
+            color: #333;
+        }
+        
+        /* Mejoras visuales para inputs */
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="tel"],
+        select {
+            transition: all 0.3s ease;
+        }
+        
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        select:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 94, 168, 0.15);
+        }
+        
+        /* Botones mejorados */
+        button {
+            transition: all 0.25s ease;
+            border-radius: 14px;
+            box-shadow: 0 10px 22px rgba(15, 42, 61, 0.18);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px rgba(15, 42, 61, 0.22);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 8px 16px rgba(15, 42, 61, 0.2);
+        }
+
+        .bg-white {
+            background-color: #F8FAFC !important;
+        }
+
+        .shadow,
+        .shadow-lg,
+        .shadow-xl,
+        .shadow-2xl {
+            box-shadow: 0 12px 30px rgba(15, 42, 61, 0.12) !important;
+        }
+
+        .bg-blue-950,
+        .bg-blue-900,
+        .bg-blue-800,
+        .bg-blue-700,
+        .bg-blue-600 {
+            background-color: #0F2A3D !important;
+        }
+
+        .text-blue-900,
+        .text-blue-800,
+        .text-blue-700,
+        .text-blue-600 {
+            color: #0F2A3D !important;
+        }
+
+        .border-blue-900,
+        .border-blue-800,
+        .border-blue-700,
+        .border-blue-600 {
+            border-color: #0F2A3D !important;
+        }
+
+        .bg-green-600,
+        .bg-green-700 {
+            background-color: #22C55E !important;
+        }
+
+        .text-green-600,
+        .text-green-700 {
+            color: #22C55E !important;
+        }
+
+        .border-green-600,
+        .border-green-700 {
+            border-color: #22C55E !important;
+        }
+
+        .bg-orange-600,
+        .bg-orange-500,
+        .bg-orange-400 {
+            background-color: #F59E0B !important;
+        }
+
+        .text-orange-600,
+        .text-orange-500,
+        .text-orange-400 {
+            color: #F59E0B !important;
+        }
+
+        .border-orange-600,
+        .border-orange-500,
+        .border-orange-400 {
+            border-color: #F59E0B !important;
+        }
+
+        .bg-slate-900,
+        .bg-slate-800,
+        .bg-slate-700 {
+            background-color: #1F2937 !important;
+        }
+
+        .text-slate-900,
+        .text-slate-800,
+        .text-slate-700 {
+            color: #1F2937 !important;
+        }
+
+        .from-blue-900,
+        .via-blue-900,
+        .to-blue-800,
+        .from-slate-900,
+        .to-slate-900,
+        .to-slate-800 {
+            --tw-gradient-from: #0F2A3D !important;
+            --tw-gradient-to: #1F2937 !important;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+        }
+
+        .reward-progress {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .reward-line {
+            position: absolute;
+            top: 9px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 9999px;
+        }
+
+        .reward-line-fill {
+            position: absolute;
+            top: 9px;
+            left: 0;
+            height: 4px;
+            background: var(--verde);
+            border-radius: 9999px;
+            width: 0%;
+        }
+
+        .reward-steps {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .reward-step {
+            width: 18px;
+            height: 18px;
+            border-radius: 9999px;
+            background: #D1D5DB;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .reward-step.completed {
+            background: var(--verde);
+            color: white;
+        }
+
+        .reward-step.active {
+            background: var(--azul-profesional);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(26, 77, 122, 0.15);
+        }
+
+        .promo-card {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .promo-card.is-fading {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================
+     PANTALLA 1: LOGIN - DISEÑO PROFESIONAL
+     ============================================ -->
+<div id="screen-login" class="screen active">
+    <div class="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+        <!-- Elementos decorativos de fondo -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-900 rounded-full opacity-10 -mr-48 -mt-48"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-800 rounded-full opacity-10 -ml-48 -mb-48"></div>
+        
+        <div class="w-full max-w-md relative z-10">
+            <!-- Header con Logo -->
+            <div class="text-center mb-12">
+                <div class="flex justify-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition duration-300">
+                        <i class="fas fa-motorcycle text-white text-4xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-5xl font-black text-white mb-3 tracking-tight">Vázquez</h1>
+                <p class="text-xl text-blue-200 font-light">Sistema de Gestión de Citas</p>
+            </div>
+            
+            <!-- Card Principal de Login -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-6 border border-white/20">
+                <!-- Título de la sección -->
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Bienvenido</h2>
+                <p class="text-gray-600 text-sm mb-6">Ingresa tus credenciales para acceder al sistema</p>
+                
+                <!-- Campo Email -->
+                <div class="mb-5">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Correo Electrónico</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="email" id="login-email" placeholder="tu@correo.com" 
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition duration-200">
+                    </div>
+                </div>
+                
+                <!-- Campo Contraseña -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Contraseña</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="password" id="login-password" placeholder="••••••••" 
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition duration-200">
+                    </div>
+                </div>
+                
+                <!-- Botón Principal -->
+                <button onclick="loginUsuario()" 
+                        class="w-full bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 rounded-lg font-bold hover:from-blue-950 hover:to-blue-900 transition duration-300 shadow-lg transform hover:shadow-xl mb-4">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión
+                </button>
+                
+                <!-- Enlaces adicionales -->
+                <div class="flex items-center justify-between text-sm text-gray-600">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2">
+                        Recuérdame
+                    </label>
+                    <button class="text-blue-900 hover:text-blue-950 font-semibold">¿Olvidaste la contraseña?</button>
+                </div>
+            </div>
+            
+            <!-- Divider -->
+            <div class="flex items-center mb-6">
+                <div class="flex-1 border-t border-blue-200/50"></div>
+                <p class="px-3 text-blue-200 text-xs font-semibold">Demo - Acceso Rápido</p>
+                <div class="flex-1 border-t border-blue-200/50"></div>
+            </div>
+            
+            <!-- Botones de Demo - Más discretos -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button onclick="loginDemo('cliente')" 
+                        class="bg-white/20 backdrop-blur-sm text-white py-3 rounded-lg font-semibold hover:bg-white/30 transition duration-300 border border-white/30 flex flex-col items-center justify-center">
+                    <i class="fas fa-user text-lg mb-1"></i>
+                    <span class="text-xs">Cliente</span>
+                </button>
+                
+                <button onclick="loginDemo('mecanico')" 
+                        class="bg-white/20 backdrop-blur-sm text-white py-3 rounded-lg font-semibold hover:bg-white/30 transition duration-300 border border-white/30 flex flex-col items-center justify-center">
+                    <i class="fas fa-wrench text-lg mb-1"></i>
+                    <span class="text-xs">Mecánico</span>
+                </button>
+                
+                <button onclick="loginDemo('admin')" 
+                        class="bg-white/20 backdrop-blur-sm text-white py-3 rounded-lg font-semibold hover:bg-white/30 transition duration-300 border border-white/30 flex flex-col items-center justify-center">
+                    <i class="fas fa-shield-alt text-lg mb-1"></i>
+                    <span class="text-xs">Admin</span>
+                </button>
+            </div>
+            
+            <!-- Registro -->
+            <div class="text-center">
+                <p class="text-blue-200 text-sm">¿No tienes cuenta?</p>
+                <button onclick="irA('screen-registro')" class="text-white font-bold hover:text-blue-200 transition">
+                    Crear una nueva cuenta <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            
+            <!-- Footer -->
+            <div class="mt-8 text-center text-blue-200 text-xs">
+                <p>© 2024 Taller Vázquez Motos. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 2: REGISTRO CLIENTE - DISEÑO PROFESIONAL
+     ============================================ -->
+<div id="screen-registro" class="screen">
+    <div class="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+        <!-- Elementos decorativos -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-900 rounded-full opacity-10 -mr-48 -mt-48"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-800 rounded-full opacity-10 -ml-48 -mb-48"></div>
+        
+        <div class="w-full max-w-md relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <button onclick="irA('screen-login')" class="inline-flex items-center text-blue-300 hover:text-white transition mb-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver al inicio
+                </button>
+                <h1 class="text-4xl font-black text-white mb-2">Crear Cuenta</h1>
+                <p class="text-blue-200">Únete a Vázquez Motos</p>
+            </div>
+            
+            <!-- Card de Registro -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+                <div class="mb-5">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Nombre Completo</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="registro-nombre" placeholder="Tu nombre completo"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition">
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Correo Electrónico</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="email" id="registro-correo" placeholder="tu@correo.com"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition">
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">WhatsApp</label>
+                    <div class="relative">
+                        <i class="fab fa-whatsapp absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="tel" id="registro-whatsapp" placeholder="+34 600 123 456"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition">
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Contraseña</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="password" id="registro-password" placeholder="••••••••"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">Confirmar Contraseña</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="password" id="registro-password2" placeholder="••••••••"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-100 transition">
+                    </div>
+                </div>
+                
+                <button onclick="registrarUsuario()" 
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition duration-300 shadow-lg mb-3">
+                    <i class="fas fa-user-plus mr-2"></i>Crear Cuenta
+                </button>
+                
+                <div class="flex items-center gap-2 text-xs text-gray-600">
+                    <input type="checkbox" class="rounded">
+                    <p>Acepto los términos y condiciones</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 3: DASHBOARD CLIENTE INICIO
+     ============================================ -->
+<div id="screen-dashboard-cliente" class="screen pb-24">
+    <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 shadow-lg">
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-2xl font-bold" id="nombre-usuario">Juan Pérez</h1>
+            <button onclick="cerrarSesion()" class="text-white hover:bg-slate-700 p-2 rounded transition">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        <p class="text-slate-300 text-sm">Cliente registrado</p>
+    </div>
+    
+    <!-- Notificaciones -->
+    <div class="bg-orange-100 border-l-4 border-orange-600 p-4 m-4">
+        <p class="text-orange-700 font-semibold">
+            <i class="fas fa-bell mr-2"></i>Tienes 1 notificación nueva
+        </p>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <!-- Tarjetas Métricas -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-900">
+                <p class="text-gray-600 text-sm">Citas Totales</p>
+                <p class="text-3xl font-bold text-blue-900">8</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-orange-500">
+                <p class="text-gray-600 text-sm">Pendientes</p>
+                <p class="text-3xl font-bold text-orange-500">2</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
+                <p class="text-gray-600 text-sm">Motos Registradas</p>
+                <p class="text-3xl font-bold text-green-600">3</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-600">
+                <p class="text-gray-600 text-sm">Total Pagado</p>
+                <p class="text-2xl font-bold text-purple-600">€1.240</p>
+            </div>
+        </div>
+
+        <!-- Recompensas -->
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
+            <p class="text-gray-600 text-sm">Recompensas</p>
+            <p id="recompensas-visitas" class="text-xl font-bold text-green-600">0/7 visitas</p>
+            <div class="reward-progress">
+                <div class="reward-line"></div>
+                <div id="reward-line-fill" class="reward-line-fill"></div>
+                <div id="reward-steps" class="reward-steps">
+                    <div class="reward-step" data-reward-step="1">1</div>
+                    <div class="reward-step" data-reward-step="2">2</div>
+                    <div class="reward-step" data-reward-step="3">3</div>
+                    <div class="reward-step" data-reward-step="4">4</div>
+                    <div class="reward-step" data-reward-step="5">5</div>
+                    <div class="reward-step" data-reward-step="6">6</div>
+                    <div class="reward-step" data-reward-step="7">7</div>
+                </div>
+            </div>
+            <p id="recompensas-msg" class="text-xs text-gray-500 mt-2">Sin cortesia disponible</p>
+        </div>
+        
+        <!-- Próxima Cita Destacada -->
+        <div class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg shadow-lg p-6 mt-6">
+            <h3 class="font-bold mb-4 text-lg">
+                <i class="fas fa-calendar-check mr-2"></i>Próxima Cita
+            </h3>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span class="font-semibold">Moto:</span>
+                    <span>Honda CB500F</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Servicio:</span>
+                    <span>Revisión Completa</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Fecha y Hora:</span>
+                    <span>26 May - 10:00 AM</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Mecánico:</span>
+                    <span>Carlos García</span>
+                </div>
+                <div class="text-center mt-4">
+                    <button onclick="abrirProgresoReciente()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Ver Progreso
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Promoción -->
+        <div id="promo-card" class="promo-card bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-lg shadow-lg p-6 mt-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span id="promo-badge" class="bg-white/20 text-white text-xs px-2 py-1 rounded-full">Ofertas</span>
+                    <span class="text-xs opacity-90">Desliza para ver mas</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="promoPrev()" class="bg-white/20 px-2 py-1 rounded text-xs">◀</button>
+                    <button onclick="promoNext()" class="bg-white/20 px-2 py-1 rounded text-xs">▶</button>
+                </div>
+            </div>
+            <h3 id="promo-titulo" class="font-bold text-lg mb-1">
+                <i class="fas fa-gift mr-2"></i>Promociones
+            </h3>
+            <p id="promo-descripcion" class="text-sm mb-4">Sin promociones activas.</p>
+            <div class="flex items-center justify-between">
+                <button id="promo-boton" class="bg-white text-orange-600 px-4 py-2 rounded font-semibold text-sm hover:bg-orange-100 transition">
+                    Ver oferta
+                </button>
+                <div id="promo-indicadores" class="flex gap-1"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 4: MIS CITAS
+     ============================================ -->
+<div id="screen-mis-citas" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="mr-4 hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Mis Citas</h1>
+    </div>
+    
+    <div class="p-4 space-y-3">
+        <!-- Botón Agendar Nueva -->
+        <button onclick="irA('screen-agendar')" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+            <i class="fas fa-plus mr-2"></i>Agendar Nueva Cita
+        </button>
+        <div id="lista-citas" class="space-y-3"></div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 5: BARRA DE PROGRESO DE MOTO
+     ============================================ -->
+<div id="screen-progreso-moto" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-mis-citas')" class="mr-4 hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Progreso de la Cita</h1>
+    </div>
+    
+    <div class="p-4">
+        <!-- Información de la Cita -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <h2 id="progreso-moto" class="font-bold text-lg mb-2">Moto</h2>
+            <p id="progreso-servicio" class="text-gray-600 text-sm mb-3">Servicio</p>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                    <p class="text-gray-600">Mecánico</p>
+                    <p id="progreso-mecanico" class="font-semibold">Por asignar</p>
+                </div>
+                <div>
+                    <p class="text-gray-600">Precio Estimado</p>
+                    <p id="progreso-precio" class="font-semibold">€0.00</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barra de Progreso -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="font-bold mb-6 text-center">Estado del Servicio</h3>
+            
+            <div class="relative">
+                <!-- Línea de conexión -->
+                <div class="absolute top-8 left-0 right-0 h-1 bg-gray-300" style="z-index: 0;"></div>
+                <div id="progreso-linea" class="absolute top-8 left-0 h-1 bg-green-600" style="width: 60%; z-index: 0;"></div>
+                
+                <!-- Pasos -->
+                <div class="flex justify-between relative" style="z-index: 1;">
+                    <!-- Paso 1: Agendado (completado) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center">Agendado</p>
+                        <p class="text-xs text-gray-500 text-center">23 May</p>
+                    </div>
+                    
+                    <!-- Paso 2: En espera (completado) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center">En espera</p>
+                        <p class="text-xs text-gray-500 text-center">24 May</p>
+                    </div>
+                    
+                    <!-- Paso 3: En revisión (actual) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center font-bold shadow-lg step-active">
+                            <i class="fas fa-magnifying-glass"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center text-blue-900">En revisión</p>
+                        <p class="text-xs text-gray-500 text-center">25 May</p>
+                    </div>
+                    
+                    <!-- Paso 4: En mantenimiento (pendiente) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold shadow-lg">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center">Mantenimiento</p>
+                        <p class="text-xs text-gray-500 text-center">Próx.</p>
+                    </div>
+                    
+                    <!-- Paso 5: Listo (pendiente) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold shadow-lg">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center">Listo</p>
+                        <p class="text-xs text-gray-500 text-center">Próx.</p>
+                    </div>
+                    
+                    <!-- Paso 6: Entregado (pendiente) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold shadow-lg">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <p class="text-xs font-semibold mt-2 text-center">Entregado</p>
+                        <p class="text-xs text-gray-500 text-center">Próx.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Descripción del estado actual -->
+        <div class="bg-blue-100 border-l-4 border-blue-900 p-4 mb-4 rounded">
+            <p class="font-semibold text-blue-900 mb-2">
+                <i class="fas fa-info-circle mr-2"></i>En Revisión
+            </p>
+            <p class="text-gray-700 text-sm">
+                Tu moto se encuentra actualmente siendo revisada. El mecánico está verificando el estado general del motor y los sistemas principales. Esto normalmente tarda 30-45 minutos.
+            </p>
+        </div>
+        
+        <!-- Botones de acción -->
+        <div class="space-y-3">
+            <button onclick="abrirEvidenciaActual()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                <i class="fas fa-camera mr-2"></i>Ver Evidencia Fotográfica
+            </button>
+            
+            <button onclick="irA('screen-mensajes')" class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-950 transition">
+                <i class="fas fa-comments mr-2"></i>Chatear con Mecánico
+            </button>
+        </div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 6: AGENDAR CITA
+     ============================================ -->
+<div id="screen-agendar" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-mis-citas')" class="mr-4 hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Agendar Nueva Cita</h1>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <!-- Seleccionar Moto -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <label class="block font-semibold mb-2">Selecciona tu Moto</label>
+            <select id="agendar-moto" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:border-blue-900">
+                <option>Honda CB500F</option>
+                <option>Yamaha MT-07</option>
+                <option>Kawasaki Ninja 400</option>
+            </select>
+        </div>
+        
+        <!-- Seleccionar Servicio -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <label class="block font-semibold mb-2">Selecciona el Servicio</label>
+            <div class="space-y-2">
+                <label class="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                    <input type="radio" name="servicio" value="1" class="mr-3">
+                    <span class="flex-1">Cambio de Aceite y Filtros - €45</span>
+                </label>
+                <label class="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                    <input type="radio" name="servicio" value="2" class="mr-3">
+                    <span class="flex-1">Revisión Completa - €125</span>
+                </label>
+                <label class="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                    <input type="radio" name="servicio" value="3" class="mr-3">
+                    <span class="flex-1">Reparación Electrónica - €95</span>
+                </label>
+                <label class="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                    <input type="radio" name="servicio" value="4" class="mr-3">
+                    <span class="flex-1">Diagnóstico - €30</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Seleccionar Fecha -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <label class="block font-semibold mb-2">Selecciona la Fecha</label>
+            <input type="date" id="agendar-fecha" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:border-blue-900">
+        </div>
+        
+        <!-- Seleccionar Hora -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <label class="block font-semibold mb-2">Selecciona la Hora</label>
+            <select id="agendar-hora" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:border-blue-900">
+                <option>09:00 AM</option>
+                <option>10:00 AM</option>
+                <option>11:00 AM</option>
+                <option>01:00 PM</option>
+                <option>02:00 PM</option>
+                <option>03:00 PM</option>
+                <option>04:00 PM</option>
+            </select>
+        </div>
+        
+        <!-- Descripción del Problema -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <label class="block font-semibold mb-2">Describe el Problema (Opcional)</label>
+            <textarea id="agendar-notas" placeholder="Cuéntanos qué tiene tu moto..." 
+                      class="w-full border border-gray-300 rounded-lg p-2 h-24 focus:outline-none focus:border-blue-900"></textarea>
+        </div>
+        
+        <!-- Botones -->
+        <div class="flex gap-3 pt-4">
+            <button onclick="irA('screen-mis-citas')" class="flex-1 bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                Cancelar
+            </button>
+            <button onclick="confirmarCita()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                <i class="fas fa-check mr-2"></i>Confirmar Cita
+            </button>
+        </div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 7: EVIDENCIA FOTOGRÁFICA
+     ============================================ -->
+<div id="screen-evidencia" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-progreso-moto')" class="mr-4 hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Evidencia Fotográfica</h1>
+    </div>
+    
+    <div class="p-4">
+        <!-- Nota del Mecánico -->
+        <div class="bg-orange-100 border-l-4 border-orange-600 p-4 mb-6 rounded">
+            <p class="font-semibold text-orange-800 mb-2">
+                <i class="fas fa-sticky-note mr-2"></i>Nota del Mecánico
+            </p>
+            <p class="text-gray-700 text-sm" id="evidencia-nota">
+                Se encontró que el filtro de aire está muy sucio y necesita cambio urgente.
+            </p>
+        </div>
+        
+        <!-- Subir Evidencias -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <h3 class="font-bold mb-3">Subir Evidencias</h3>
+            <input type="file" id="evidencia-input" accept="image/*" multiple class="w-full text-sm">
+            <button onclick="guardarEvidencias()" class="mt-3 w-full bg-blue-900 text-white py-2 rounded font-semibold hover:bg-blue-950 transition">
+                <i class="fas fa-upload mr-2"></i>Guardar Fotos
+            </button>
+        </div>
+        
+        <!-- Grid de Fotos -->
+        <h3 class="font-bold mb-3">Fotos Actuales</h3>
+        <div id="evidencia-grid" class="grid grid-cols-2 gap-3 mb-6"></div>
+        
+        <!-- Resumen de Reparaciones Sugeridas -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <h3 class="font-bold mb-3">Servicios Sugeridos</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center p-2 border border-gray-300 rounded">
+                    <span>Cambio de Filtro de Aire</span>
+                    <span class="font-semibold">€25</span>
+                </div>
+                <div class="flex justify-between items-center p-2 border border-gray-300 rounded">
+                    <span>Ajuste de Nivel de Aceite</span>
+                    <span class="font-semibold">€15</span>
+                </div>
+                <div class="flex justify-between items-center p-2 border border-gray-300 rounded">
+                    <span>Limpieza de Inyectores</span>
+                    <span class="font-semibold">€40</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botones de Decisión -->
+        <div class="flex gap-3">
+            <button onclick="mostrarMensaje('Reparación rechazada'); irA('screen-mis-citas');" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                <i class="fas fa-times mr-2"></i>Rechazar
+            </button>
+            <button onclick="mostrarMensaje('¡Reparación autorizada!'); irA('screen-mis-citas');" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                <i class="fas fa-check mr-2"></i>Autorizar
+            </button>
+        </div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 8: MENSAJERÍA INTERNA
+     ============================================ -->
+<div id="screen-mensajes" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center justify-between">
+        <button onclick="irA('screen-dashboard-cliente')" class="hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Mensajes</h1>
+        <div class="w-8"></div>
+    </div>
+    
+    <div class="p-4 pb-24">
+        <!-- Chat con Mecánico -->
+        <h3 class="font-bold mb-4">Carlos García - Mecánico</h3>
+        
+        <!-- Area de Chat -->
+        <div id="chat-historial" class="bg-gray-100 rounded-lg p-4 h-80 overflow-y-auto mb-4 space-y-3">
+            <!-- Mensaje del Mecánico -->
+            <div class="flex justify-start">
+                <div class="chat-bubble other rounded-lg px-4 py-2">
+                    <p class="text-sm">Hola Juan, tu cita está confirmada para mañana a las 10 AM</p>
+                    <p class="text-xs text-gray-500 mt-1">10:30 AM</p>
+                </div>
+            </div>
+            
+            <!-- Mensaje del Cliente -->
+            <div class="flex justify-end">
+                <div class="chat-bubble own rounded-lg px-4 py-2">
+                    <p class="text-sm">Perfecto, ¿es necesario traer algo especial?</p>
+                    <p class="text-xs text-gray-300 mt-1">10:32 AM</p>
+                </div>
+            </div>
+            
+            <!-- Mensaje del Mecánico -->
+            <div class="flex justify-start">
+                <div class="chat-bubble other rounded-lg px-4 py-2">
+                    <p class="text-sm">No, solo trae la moto y tu cédula de identidad. La revisión tomará aproximadamente 1 hora</p>
+                    <p class="text-xs text-gray-500 mt-1">10:35 AM</p>
+                </div>
+            </div>
+            
+            <!-- Mensaje del Cliente -->
+            <div class="flex justify-end">
+                <div class="chat-bubble own rounded-lg px-4 py-2">
+                    <p class="text-sm">Está bien, nos vemos mañana 👍</p>
+                    <p class="text-xs text-gray-300 mt-1">10:38 AM</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input de Mensaje -->
+        <div class="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-300 p-4">
+            <div class="flex gap-2 max-w-full">
+                <input type="text" id="mensaje-input" placeholder="Escribe tu mensaje..." 
+                       class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-900">
+                <button onclick="enviarMensaje()" class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-950 transition">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 9: MIS MOTOS
+     ============================================ -->
+<div id="screen-mis-motos" class="screen pb-24">
+    <div class="bg-blue-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="mr-4 hover:bg-blue-950 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Mis Motos</h1>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <!-- Formulario Moto -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-3">Registrar / Editar Moto</h3>
+            <input type="hidden" id="moto-id">
+            <div class="space-y-3">
+                <input type="text" id="moto-nombre" placeholder="Marca y modelo" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="moto-placa" placeholder="Placa" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                    <input type="number" id="moto-anio" placeholder="Año" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="moto-km" placeholder="Kilometraje" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                    <input type="number" id="moto-proximo" placeholder="Próximo cambio (km)" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="guardarMoto()" class="flex-1 bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 transition">
+                        <i class="fas fa-save mr-2"></i>Guardar Moto
+                    </button>
+                    <button onclick="cancelarEdicionMoto()" class="flex-1 bg-gray-300 text-gray-800 py-2 rounded font-semibold hover:bg-gray-400 transition">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista de Motos -->
+        <div id="lista-motos" class="space-y-3"></div>
+    </div>
+    
+    <!-- Barra de Navegación Inferior -->
+    <div class="nav-bottom active justify-around items-center">
+        <button onclick="irA('screen-dashboard-cliente')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </button>
+        <button onclick="irA('screen-mis-citas')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-list text-xl mb-1"></i>
+            <span class="text-xs">Citas</span>
+        </button>
+        <button onclick="irA('screen-mis-motos')" class="flex flex-col items-center py-3 text-blue-900 font-semibold">
+            <i class="fas fa-motorcycle text-xl mb-1"></i>
+            <span class="text-xs">Motos</span>
+        </button>
+        <button onclick="irA('screen-mensajes')" class="flex flex-col items-center py-3 text-gray-600 hover:text-blue-900 font-semibold">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-xs">Mensajes</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 9: DASHBOARD MECÁNICO - MEJORADO
+     ============================================ -->
+<div id="screen-dashboard-mecanico" class="screen pb-24">
+    <!-- Header Profesional -->
+    <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h1 class="text-3xl font-bold">Roberto Sánchez</h1>
+                <p class="text-slate-400 text-sm">Mecánico Senior | ID: MEC-0047</p>
+            </div>
+            <button onclick="cerrarSesion()" class="text-white hover:bg-slate-700 p-2 rounded transition">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Mini Métricas -->
+        <div class="grid grid-cols-4 gap-3 mt-4">
+            <div class="bg-slate-800/50 rounded p-2 border border-slate-700">
+                <p class="text-slate-400 text-xs">Hoy</p>
+                <p class="text-xl font-bold">5 citas</p>
+            </div>
+            <div class="bg-slate-800/50 rounded p-2 border border-slate-700">
+                <p class="text-slate-400 text-xs">En Proceso</p>
+                <p class="text-xl font-bold text-orange-400">3</p>
+            </div>
+            <div class="bg-slate-800/50 rounded p-2 border border-slate-700">
+                <p class="text-slate-400 text-xs">Completadas</p>
+                <p class="text-xl font-bold text-green-400">2</p>
+            </div>
+            <div class="bg-slate-800/50 rounded p-2 border border-slate-700">
+                <p class="text-slate-400 text-xs">Disponibilidad</p>
+                <p class="text-xl font-bold text-blue-400">94%</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-4 space-y-6">
+        <!-- Estadísticas Detalladas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="text-slate-400 text-sm">Promedio por Cita</p>
+                        <p class="text-3xl font-bold mt-1">₡87.50</p>
+                    </div>
+                    <i class="fas fa-money-bill-wave text-3xl opacity-30"></i>
+                </div>
+                <p class="text-slate-400 text-xs">Ingresos generados</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="text-slate-400 text-sm">Tiempo Promedio</p>
+                        <p class="text-3xl font-bold mt-1">1h 25m</p>
+                    </div>
+                    <i class="fas fa-clock text-3xl opacity-30"></i>
+                </div>
+                <p class="text-slate-400 text-xs">Por servicio</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="text-slate-400 text-sm">Calificación</p>
+                        <p class="text-3xl font-bold mt-1">4.9/5</p>
+                    </div>
+                    <i class="fas fa-star text-3xl text-yellow-400 opacity-50"></i>
+                </div>
+                <p class="text-slate-400 text-xs">Por clientes</p>
+            </div>
+        </div>
+        
+        <!-- Citas del Día - Mejorado -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-slate-900">Citas Programadas Hoy</h2>
+                <button class="text-slate-600 hover:text-slate-900">
+                    <i class="fas fa-sync text-lg"></i>
+                </button>
+            </div>
+            
+            <div id="lista-citas-mecanico" class="space-y-3"></div>
+        </div>
+        
+        <!-- Tareas Pendientes -->
+        <div>
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-bold text-slate-900"><i class="fas fa-tasks mr-2 text-purple-600"></i>Mis Tareas Pendientes</h2>
+                <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">2 pendientes</span>
+            </div>
+            
+            <div class="space-y-3">
+                <!-- Tarea 1 -->
+                <div class="bg-white rounded-lg shadow-md border-l-4 border-orange-500 p-4 hover:shadow-lg transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-bold text-slate-900">Reparación sistema eléctrico Yamaha YZF-R3</h3>
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-semibold">Urgente</span>
+                            </div>
+                            <p class="text-slate-600 text-sm mb-2">Diagnosticar falla en el sistema de iluminación, reemplazar si es necesario</p>
+                            <div class="flex gap-4 text-xs text-slate-600">
+                                <span><i class="fas fa-calendar mr-1"></i>Vencimiento: 22/05/2026</span>
+                                <span><i class="fas fa-hourglass-end mr-1"></i>2 horas estimadas</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition font-semibold">
+                                <i class="fas fa-check mr-1"></i>Completar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tarea 2 -->
+                <div class="bg-white rounded-lg shadow-md border-l-4 border-blue-500 p-4 hover:shadow-lg transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-bold text-slate-900">Cambio de aceite y filtro - Honda CB500F</h3>
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-semibold">Alta</span>
+                            </div>
+                            <p class="text-slate-600 text-sm mb-2">Cambio de aceite 10W40 sintético, filtro de aire y filtro de aceite</p>
+                            <div class="flex gap-4 text-xs text-slate-600">
+                                <span><i class="fas fa-calendar mr-1"></i>Vencimiento: 25/05/2026</span>
+                                <span><i class="fas fa-hourglass-end mr-1"></i>1.5 horas estimadas</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition font-semibold">
+                                <i class="fas fa-check mr-1"></i>Completar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de Utilidades -->
+        <div class="grid grid-cols-2 gap-3">
+            <button class="bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-950 transition border border-slate-800 flex items-center justify-center">
+                <i class="fas fa-calendar-plus mr-2"></i>Cargar Agenda
+            </button>
+            <button class="bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-950 transition border border-slate-800 flex items-center justify-center">
+                <i class="fas fa-file-export mr-2"></i>Generar Reporte
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 10: DASHBOARD ADMIN - DISEÑO CORPORATIVO MUNDIAL
+     ============================================ -->
+<div id="screen-dashboard-admin" class="screen pb-24">
+    <!-- Header Corporativo -->
+    <div class="bg-slate-900 text-white p-8 shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">Dashboard Administrativo</h1>
+                <p class="text-slate-300 text-base">Taller de Motos Vázquez - 25 de mayo de 2026</p>
+            </div>
+            <button onclick="cerrarSesion()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+            </button>
+        </div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto p-8 space-y-8">
+        <!-- Sección 1: KPIs Principales -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Resumen Ejecutivo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-blue-600">
+                    <p class="text-slate-500 text-sm font-semibold">TOTAL DE CITAS</p>
+                    <p class="text-5xl font-bold text-slate-900 mt-3">247</p>
+                    <p class="text-sm text-green-600 mt-2"><i class="fas fa-arrow-up mr-1"></i>+12 esta semana</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
+                    <p class="text-slate-500 text-sm font-semibold">INGRESOS MES</p>
+                    <p class="text-5xl font-bold text-slate-900 mt-3">₡12.450</p>
+                    <p class="text-sm text-green-600 mt-2"><i class="fas fa-arrow-up mr-1"></i>+8.5% vs anterior</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-orange-600">
+                    <p class="text-slate-500 text-sm font-semibold">CITAS PENDIENTES</p>
+                    <p class="text-5xl font-bold text-slate-900 mt-3">18</p>
+                    <p class="text-sm text-orange-600 mt-2"><i class="fas fa-alert-circle mr-1"></i>Requieren atención</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-purple-600">
+                    <p class="text-slate-500 text-sm font-semibold">TASA DE ÉXITO</p>
+                    <p class="text-5xl font-bold text-slate-900 mt-3">92.7%</p>
+                    <p class="text-sm text-green-600 mt-2"><i class="fas fa-check-circle mr-1"></i>229 completadas</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección 2: Servicios Top -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Top de Servicios</h2>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b-2 border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-600">SERVICIO</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-600">CANTIDAD</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-600">PARTICIPACIÓN</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-slate-600">VARIACIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4"><span class="text-blue-600 font-semibold">● Cambio de Aceite</span></td>
+                            <td class="px-6 py-4 text-center font-bold">85</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">34.4%</span></td>
+                            <td class="px-6 py-4 text-right text-green-600 font-semibold"><i class="fas fa-arrow-up mr-1"></i>+5</td>
+                        </tr>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4"><span class="text-green-600 font-semibold">● Revisión Completa</span></td>
+                            <td class="px-6 py-4 text-center font-bold">62</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">25.1%</span></td>
+                            <td class="px-6 py-4 text-right text-green-600 font-semibold"><i class="fas fa-arrow-up mr-1"></i>+3</td>
+                        </tr>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4"><span class="text-orange-600 font-semibold">● Reparación Electrónica</span></td>
+                            <td class="px-6 py-4 text-center font-bold">45</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">18.2%</span></td>
+                            <td class="px-6 py-4 text-right text-red-600 font-semibold"><i class="fas fa-arrow-down mr-1"></i>-1</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4"><span class="text-red-600 font-semibold">● Diagnóstico</span></td>
+                            <td class="px-6 py-4 text-center font-bold">31</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">12.6%</span></td>
+                            <td class="px-6 py-4 text-right text-green-600 font-semibold"><i class="fas fa-arrow-up mr-1"></i>+2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Sección 3: Estado de Citas -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Estado de Citas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-600">
+                    <p class="text-blue-600 text-sm font-bold uppercase">Agendadas</p>
+                    <p class="text-4xl font-bold text-blue-900 mt-2">85</p>
+                    <p class="text-sm text-blue-600 mt-2">34.4% del total</p>
+                </div>
+                
+                <div class="bg-yellow-50 rounded-lg p-6 border-l-4 border-yellow-500">
+                    <p class="text-yellow-600 text-sm font-bold uppercase">En Proceso</p>
+                    <p class="text-4xl font-bold text-yellow-900 mt-2">62</p>
+                    <p class="text-sm text-yellow-600 mt-2">25.1% del total</p>
+                </div>
+                
+                <div class="bg-green-50 rounded-lg p-6 border-l-4 border-green-600">
+                    <p class="text-green-600 text-sm font-bold uppercase">Completadas</p>
+                    <p class="text-4xl font-bold text-green-900 mt-2">100</p>
+                    <p class="text-sm text-green-600 mt-2">40.5% del total</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección 4: Ingresos por Servicio -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Desglose de Ingresos</h2>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b-2 border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-600">SERVICIO</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-slate-600">INGRESOS</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-600">% TOTAL</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-slate-600">PROMEDIO/CITA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-semibold">Cambio de Aceite</td>
+                            <td class="px-6 py-4 text-right text-blue-600 font-bold">₡3.825</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">30.7%</span></td>
+                            <td class="px-6 py-4 text-right">₡45.00</td>
+                        </tr>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-semibold">Revisión Completa</td>
+                            <td class="px-6 py-4 text-right text-green-600 font-bold">₡3.100</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">24.9%</span></td>
+                            <td class="px-6 py-4 text-right">₡50.00</td>
+                        </tr>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-semibold">Reparación Electrónica</td>
+                            <td class="px-6 py-4 text-right text-orange-600 font-bold">₡2.700</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">21.7%</span></td>
+                            <td class="px-6 py-4 text-right">₡60.00</td>
+                        </tr>
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-semibold">Diagnóstico</td>
+                            <td class="px-6 py-4 text-right text-red-600 font-bold">₡1.860</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">14.9%</span></td>
+                            <td class="px-6 py-4 text-right">₡60.00</td>
+                        </tr>
+                        <tr class="bg-slate-900 text-white">
+                            <td class="px-6 py-4 font-bold">TOTAL</td>
+                            <td class="px-6 py-4 text-right font-bold">₡12.450</td>
+                            <td class="px-6 py-4 text-center font-bold">100%</td>
+                            <td class="px-6 py-4 text-right font-bold">₡50.40</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Sección 5: Acciones Principales -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Navegación Rápida</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onclick="irA('screen-admin-citas')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 shadow-md transition font-semibold flex flex-col items-center gap-3">
+                    <i class="fas fa-list-check text-3xl"></i>
+                    <span>Gestionar Citas</span>
+                </button>
+                
+                <button onclick="irA('screen-admin-empleados')" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-6 shadow-md transition font-semibold flex flex-col items-center gap-3">
+                    <i class="fas fa-users text-3xl"></i>
+                    <span>Empleados</span>
+                </button>
+                
+                <button onclick="irA('screen-admin-tareas')" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-6 shadow-md transition font-semibold flex flex-col items-center gap-3">
+                    <i class="fas fa-tasks text-3xl"></i>
+                    <span>Asignar Tareas</span>
+                </button>
+                
+                <button onclick="irA('screen-admin-reportes')" class="bg-slate-600 hover:bg-slate-700 text-white rounded-lg p-6 shadow-md transition font-semibold flex flex-col items-center gap-3">
+                    <i class="fas fa-chart-bar text-3xl"></i>
+                    <span>Reportes</span>
+                </button>
+                
+                <button onclick="irA('screen-admin-promos')" class="bg-orange-600 hover:bg-orange-700 text-white rounded-lg p-6 shadow-md transition font-semibold flex flex-col items-center gap-3">
+                    <i class="fas fa-gift text-3xl"></i>
+                    <span>Promociones</span>
+                </button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 11: ADMIN GESTIÓN DE CITAS
+     ============================================ -->
+<div id="screen-admin-citas" class="screen pb-24">
+    <div class="bg-blue-950 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-admin')" class="mr-4 hover:bg-blue-900 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Gestión de Citas</h1>
+    </div>
+    
+    <div class="p-4">
+        <!-- Filtros -->
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+            <div class="grid grid-cols-2 gap-2">
+                <select class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                    <option>Todos los estados</option>
+                    <option>Agendado</option>
+                    <option>En revisión</option>
+                    <option>Listo</option>
+                    <option>Entregado</option>
+                </select>
+                
+                <input type="date" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+            </div>
+        </div>
+        
+        <!-- Tabla de Citas -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">Moto</th>
+                        <th class="p-3 text-left">Cliente</th>
+                        <th class="p-3 text-left">Estado</th>
+                        <th class="p-3 text-left">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-citas-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 12: ADMIN EMPLEADOS
+     ============================================ -->
+<div id="screen-admin-empleados" class="screen pb-24">
+    <div class="bg-blue-950 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-admin')" class="mr-4 hover:bg-blue-900 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Gestión de Empleados</h1>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <!-- Formulario Nuevo Empleado -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-3">Crear Nuevo Empleado</h3>
+            
+            <div class="space-y-3">
+                <input type="text" placeholder="Nombre Completo" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                
+                <input type="email" placeholder="Correo Electrónico" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                
+                <input type="password" placeholder="Contraseña Temporal" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                
+                <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-900">
+                    <option>Selecciona el Rol</option>
+                    <option>Mecánico</option>
+                    <option>Administrativo</option>
+                </select>
+                
+                <button class="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 transition">
+                    <i class="fas fa-user-plus mr-2"></i>Crear Empleado
+                </button>
+            </div>
+        </div>
+        
+        <!-- Lista de Empleados -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 text-left">Nombre</th>
+                        <th class="p-3 text-left">Rol</th>
+                        <th class="p-3 text-left">Estado</th>
+                        <th class="p-3 text-left">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">Carlos García</td>
+                        <td class="p-3">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Mecánico</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Activo</span>
+                        </td>
+                        <td class="p-3">
+                            <button class="text-red-600 hover:underline text-xs">Desactivar</button>
+                        </td>
+                    </tr>
+                    
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">Roberto Sánchez</td>
+                        <td class="p-3">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Mecánico</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Activo</span>
+                        </td>
+                        <td class="p-3">
+                            <button class="text-red-600 hover:underline text-xs">Desactivar</button>
+                        </td>
+                    </tr>
+                    
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">Sofía Martínez</td>
+                        <td class="p-3">
+                            <span class="bg-blue-100 text-blue-900 px-2 py-1 rounded text-xs">Admin</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Activo</span>
+                        </td>
+                        <td class="p-3">
+                            <button class="text-red-600 hover:underline text-xs">Desactivar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 12B: ADMIN PROMOCIONES
+     ============================================ -->
+<div id="screen-admin-promos" class="screen pb-24">
+    <div class="bg-orange-600 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-admin')" class="mr-4 hover:bg-orange-700 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Gestión de Promociones</h1>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-3">Crear Promoción</h3>
+            <div class="space-y-3">
+                <input type="text" id="promo-titulo-input" placeholder="Título" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-600">
+                <textarea id="promo-descripcion-input" placeholder="Descripción" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-600" rows="3"></textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="promo-descuento-input" placeholder="Descuento (%)" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-600">
+                    <label class="flex items-center text-sm text-gray-700">
+                        <input type="checkbox" id="promo-activa-input" class="mr-2"> Activar ahora
+                    </label>
+                </div>
+                <button onclick="guardarPromo()" class="w-full bg-orange-600 text-white py-2 rounded font-semibold hover:bg-orange-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Guardar Promoción
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-3">Promociones Actuales</h3>
+            <div id="admin-promos-list" class="space-y-3"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 13: ADMIN ASIGNAR TAREAS
+     ============================================ -->
+<div id="screen-admin-tareas" class="screen pb-24">
+    <div class="bg-purple-950 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-admin')" class="mr-4 hover:bg-purple-900 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Asignar Tareas a Empleados</h1>
+    </div>
+    
+    <div class="p-4 space-y-4">
+        <!-- Formulario Nueva Tarea -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-4 text-lg">Crear Nueva Tarea</h3>
+            
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Empleado</label>
+                        <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" id="selectEmpleado">
+                            <option value="">Selecciona un empleado</option>
+                            <option value="1">Carlos García</option>
+                            <option value="2">Roberto Sánchez</option>
+                            <option value="3">Sofía Martínez</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Prioridad</label>
+                        <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" id="selectPrioridad">
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Título de la Tarea</label>
+                    <input type="text" placeholder="Ej: Cambio de aceite - Moto XYZ-123" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" id="inputTareaTitulo">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Descripción</label>
+                    <textarea placeholder="Detalles de la tarea, instrucciones específicas, notas importantes..." class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" rows="3" id="inputTareaDescripcion"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Fecha Vencimiento</label>
+                        <input type="date" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" id="inputTareaFecha">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Hora Estimada</label>
+                        <input type="time" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-900" id="inputTareaHora">
+                    </div>
+                </div>
+                
+                <button onclick="crearTarea()" class="w-full bg-purple-600 text-white py-2 rounded font-semibold hover:bg-purple-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Crear y Asignar Tarea
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tareas por Empleado -->
+        <div class="space-y-4">
+            <h3 class="font-bold text-lg">Tareas Asignadas</h3>
+            
+            <!-- Empleado 1: Carlos García -->
+            <div class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-orange-500">
+                <div class="p-4 bg-gray-50 border-b">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg">Carlos García</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-wrench mr-1"></i>Mecánico | 5 tareas asignadas</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>3 completadas</p>
+                            <p class="text-xs text-orange-600"><i class="fas fa-clock mr-1"></i>2 pendientes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y">
+                    <!-- Tarea 1 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">COMPLETADA</span>
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Urgente</span>
+                            </div>
+                            <h5 class="font-semibold text-sm line-through text-gray-500">Reparación sistema eléctrico Yamaha YZF-R3</h5>
+                            <p class="text-xs text-gray-600 mt-1">Diagnosticar falla en el sistema de iluminación, reemplazar si es necesario</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Vencimiento: 22/05/2026 - <i class="fas fa-hourglass-end mr-1"></i>2 horas</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarea 2 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start bg-blue-50">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">EN PROCESO</span>
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Alta</span>
+                            </div>
+                            <h5 class="font-semibold text-sm">Cambio de aceite y filtro - Honda CB500F</h5>
+                            <p class="text-xs text-gray-600 mt-1">Cambio de aceite 10W40 sintético, filtro de aire y filtro de aceite</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Vencimiento: 25/05/2026 - <i class="fas fa-hourglass-end mr-1"></i>1.5 horas</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-blue-600 hover:text-blue-700 text-sm"><i class="fas fa-edit"></i></button>
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empleado 2: Roberto Sánchez -->
+            <div class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-green-500">
+                <div class="p-4 bg-gray-50 border-b">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg">Roberto Sánchez</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-wrench mr-1"></i>Mecánico | 3 tareas asignadas</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>2 completadas</p>
+                            <p class="text-xs text-orange-600"><i class="fas fa-clock mr-1"></i>1 pendiente</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y">
+                    <!-- Tarea 1 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">COMPLETADA</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Media</span>
+                            </div>
+                            <h5 class="font-semibold text-sm line-through text-gray-500">Inspección de neumáticos - Kawasaki Ninja 400</h5>
+                            <p class="text-xs text-gray-600 mt-1">Revisar presión, desgaste y reemplazar si es necesario</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Completada: 23/05/2026</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarea 2 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start bg-blue-50">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">EN PROCESO</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Baja</span>
+                            </div>
+                            <h5 class="font-semibold text-sm">Limpieza y mantenimiento preventivo - Suzuki GSX-R150</h5>
+                            <p class="text-xs text-gray-600 mt-1">Limpieza general, lubricación de cadena y ajuste de componentes</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Vencimiento: 26/05/2026 - <i class="fas fa-hourglass-end mr-1"></i>1 hora</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-blue-600 hover:text-blue-700 text-sm"><i class="fas fa-edit"></i></button>
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empleado 3: Sofía Martínez -->
+            <div class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-blue-500">
+                <div class="p-4 bg-gray-50 border-b">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg">Sofía Martínez</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-clipboard-list mr-1"></i>Administrativo | 2 tareas asignadas</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>1 completada</p>
+                            <p class="text-xs text-orange-600"><i class="fas fa-clock mr-1"></i>1 pendiente</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y">
+                    <!-- Tarea 1 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">COMPLETADA</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Media</span>
+                            </div>
+                            <h5 class="font-semibold text-sm line-through text-gray-500">Procesamiento de cobros - Semana 20/05</h5>
+                            <p class="text-xs text-gray-600 mt-1">Reconciliar pagos del sistema, generar reportes de ingresos</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Completada: 23/05/2026</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarea 2 -->
+                    <div class="p-4 hover:bg-gray-50 transition flex justify-between items-start bg-blue-50">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">EN PROCESO</span>
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Alta</span>
+                            </div>
+                            <h5 class="font-semibold text-sm">Envío de recordatorios de citas - Próxima semana</h5>
+                            <p class="text-xs text-gray-600 mt-1">Enviar recordatorios de citas por WhatsApp y email a todos los clientes</p>
+                            <p class="text-xs text-gray-500 mt-2"><i class="fas fa-calendar mr-1"></i>Vencimiento: 26/05/2026</p>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="text-blue-600 hover:text-blue-700 text-sm"><i class="fas fa-edit"></i></button>
+                            <button class="text-red-600 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     PANTALLA 14: SITIO WEB PÚBLICO HOME
+     ============================================ -->
+<div id="screen-home-publico" class="screen">
+    <!-- Navbar -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-motorcycle text-2xl"></i>
+                <span class="font-bold text-xl">Vázquez Motos</span>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="irA('screen-login')" class="bg-white text-blue-900 px-4 py-2 rounded hover:bg-gray-200 transition font-semibold">
+                    Iniciar Sesión
+                </button>
+                <button onclick="irA('screen-registro')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition font-semibold">
+                    Registrarse
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-16 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl font-bold mb-4">Vázquez Motos</h1>
+            <p class="text-xl mb-8 text-blue-100">Tu taller de confianza con sistema de citas online 24/7</p>
+            <button onclick="irA('screen-agendar')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-green-700 transition">
+                <i class="fas fa-calendar-plus mr-2"></i>Agendar Cita Ahora
+            </button>
+        </div>
+    </div>
+    
+    <!-- Grid de Servicios -->
+    <div class="max-w-6xl mx-auto py-16 px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Nuestros Servicios</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Servicio 1 -->
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition">
+                <i class="fas fa-oil-can text-4xl text-blue-900 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Cambio de Aceite</h3>
+                <p class="text-gray-600 text-sm mb-3">Mantenimiento esencial para tu moto</p>
+                <p class="text-blue-900 font-bold">€45</p>
+            </div>
+            
+            <!-- Servicio 2 -->
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition">
+                <i class="fas fa-tools text-4xl text-orange-600 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Revisión Completa</h3>
+                <p class="text-gray-600 text-sm mb-3">Inspección de todos los sistemas</p>
+                <p class="text-blue-900 font-bold">€125</p>
+            </div>
+            
+            <!-- Servicio 3 -->
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition">
+                <i class="fas fa-bolt text-4xl text-yellow-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Reparación Electrónica</h3>
+                <p class="text-gray-600 text-sm mb-3">Diagnóstico y reparación eléctrica</p>
+                <p class="text-blue-900 font-bold">€95</p>
+            </div>
+            
+            <!-- Servicio 4 -->
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition">
+                <i class="fas fa-stethoscope text-4xl text-red-600 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Diagnóstico</h3>
+                <p class="text-gray-600 text-sm mb-3">Análisis profesional de problemas</p>
+                <p class="text-blue-900 font-bold">€30</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección App -->
+    <div class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-4">Descarga Nuestra App</h2>
+            <p class="mb-8 text-gray-300">Gestiona tus citas desde cualquier lugar</p>
+            <div class="flex justify-center gap-4">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition flex items-center">
+                    <i class="fab fa-google-play mr-2"></i>Google Play
+                </button>
+                <button class="bg-gray-700 text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-600 transition flex items-center">
+                    <i class="fab fa-apple mr-2"></i>App Store
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-blue-950 text-white py-8 px-4">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div>
+                <h4 class="font-bold mb-2">Contacto</h4>
+                <p class="text-sm text-gray-400">📍 Dirección: Calle Motor 123, Barcelona</p>
+                <p class="text-sm text-gray-400">📞 Teléfono: +34 934 XX XX XX</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-2">Horario</h4>
+                <p class="text-sm text-gray-400">Lunes - Viernes: 08:00 - 18:00</p>
+                <p class="text-sm text-gray-400">Sábado: 09:00 - 14:00</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-2">Redes Sociales</h4>
+                <div class="flex gap-3">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ============================================
+     PANTALLA 14: REPORTES Y ESTADÍSTICAS AVANZADAS
+     ============================================ -->
+<div id="screen-admin-reportes" class="screen pb-24">
+    <div class="bg-slate-900 text-white p-6 shadow-lg flex items-center">
+        <button onclick="irA('screen-dashboard-admin')" class="mr-4 hover:bg-slate-800 p-2 rounded">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-bold">Reportes y Estadísticas</h1>
+    </div>
+    
+    <div class="p-4 space-y-6">
+        <!-- Filtros de Reportes -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold mb-4">Filtros de Búsqueda</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Período</label>
+                    <select class="w-full border-2 border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-700">
+                        <option>Últimos 7 días</option>
+                        <option>Últimos 30 días</option>
+                        <option>Este mes</option>
+                        <option>Este año</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Mecánico</label>
+                    <select class="w-full border-2 border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-700">
+                        <option>Todos</option>
+                        <option>Carlos García</option>
+                        <option>Roberto Sánchez</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Estado</label>
+                    <select class="w-full border-2 border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-700">
+                        <option>Todos</option>
+                        <option>Completadas</option>
+                        <option>Pendientes</option>
+                    </select>
+                </div>
+            </div>
+            <button class="mt-3 bg-slate-800 text-white px-4 py-2 rounded font-semibold hover:bg-slate-900 transition">
+                <i class="fas fa-search mr-2"></i>Buscar
+            </button>
+        </div>
+        
+        <!-- KPIs Principales -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm">Citas Completadas</p>
+                        <p class="text-4xl font-bold mt-2">156</p>
+                        <p class="text-green-400 text-xs mt-1">
+                            <i class="fas fa-arrow-up mr-1"></i>+12% vs mes anterior
+                        </p>
+                    </div>
+                    <i class="fas fa-check-circle text-3xl text-green-400 opacity-50"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm">Ingresos Totales</p>
+                        <p class="text-3xl font-bold mt-2">€12,450</p>
+                        <p class="text-green-400 text-xs mt-1">
+                            <i class="fas fa-arrow-up mr-1"></i>+8.5% vs mes anterior
+                        </p>
+                    </div>
+                    <i class="fas fa-euro-sign text-3xl text-blue-400 opacity-50"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm">Promedio por Cita</p>
+                        <p class="text-3xl font-bold mt-2">€79.80</p>
+                        <p class="text-blue-400 text-xs mt-1">
+                            <i class="fas fa-equals mr-1"></i>Ticket medio
+                        </p>
+                    </div>
+                    <i class="fas fa-chart-line text-3xl text-amber-400 opacity-50"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg p-6 border border-slate-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm">Satisfacción</p>
+                        <p class="text-3xl font-bold mt-2">4.8/5</p>
+                        <p class="text-yellow-400 text-xs mt-1">
+                            <i class="fas fa-star mr-1"></i>Calificación
+                        </p>
+                    </div>
+                    <i class="fas fa-star text-3xl text-yellow-400 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráficas de Rendimiento -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Gráfica: Citas por Día -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="font-bold mb-4">Citas por Día (Últimos 7 días)</h3>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Lunes</span>
+                            <span class="font-semibold">24 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-900 h-3 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Martes</span>
+                            <span class="font-semibold">18 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-700 h-3 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Miércoles</span>
+                            <span class="font-semibold">21 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-700 h-3 rounded-full" style="width: 87.5%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Jueves</span>
+                            <span class="font-semibold">19 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-700 h-3 rounded-full" style="width: 79%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Viernes</span>
+                            <span class="font-semibold">22 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-700 h-3 rounded-full" style="width: 91%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Sábado</span>
+                            <span class="font-semibold">12 citas</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-600 h-3 rounded-full" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfica: Ingresos por Servicio -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="font-bold mb-4">Ingresos por Tipo de Servicio</h3>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Cambio de Aceite</span>
+                            <span class="font-semibold">€3,825 (30%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-blue-600 h-3 rounded-full" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Revisión Completa</span>
+                            <span class="font-semibold">€4,965 (40%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-800 h-3 rounded-full" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Reparación Electrónica</span>
+                            <span class="font-semibold">€2,480 (20%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-600 h-3 rounded-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Diagnóstico</span>
+                            <span class="font-semibold">€1,180 (10%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-slate-500 h-3 rounded-full" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rendimiento por Mecánico -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="font-bold mb-4">Rendimiento por Mecánico</h3>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b-2 border-slate-300">
+                        <th class="p-3 text-left font-semibold text-slate-700">Mecánico</th>
+                        <th class="p-3 text-center font-semibold text-slate-700">Citas</th>
+                        <th class="p-3 text-center font-semibold text-slate-700">Completadas</th>
+                        <th class="p-3 text-center font-semibold text-slate-700">% Éxito</th>
+                        <th class="p-3 text-right font-semibold text-slate-700">Ingresos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-slate-200 hover:bg-slate-50">
+                        <td class="p-3">
+                            <div>
+                                <p class="font-semibold">Carlos García</p>
+                                <p class="text-xs text-slate-600">Mecánico Senior</p>
+                            </div>
+                        </td>
+                        <td class="p-3 text-center">48</td>
+                        <td class="p-3 text-center">46</td>
+                        <td class="p-3 text-center">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">95.8%</span>
+                        </td>
+                        <td class="p-3 text-right font-semibold">€4,180</td>
+                    </tr>
+                    <tr class="border-b border-slate-200 hover:bg-slate-50">
+                        <td class="p-3">
+                            <div>
+                                <p class="font-semibold">Roberto Sánchez</p>
+                                <p class="text-xs text-slate-600">Mecánico Senior</p>
+                            </div>
+                        </td>
+                        <td class="p-3 text-center">45</td>
+                        <td class="p-3 text-center">43</td>
+                        <td class="p-3 text-center">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">95.5%</span>
+                        </td>
+                        <td class="p-3 text-right font-semibold">€3,890</td>
+                    </tr>
+                    <tr class="border-b border-slate-200 hover:bg-slate-50">
+                        <td class="p-3">
+                            <div>
+                                <p class="font-semibold">Juan Martínez</p>
+                                <p class="text-xs text-slate-600">Mecánico Junior</p>
+                            </div>
+                        </td>
+                        <td class="p-3 text-center">38</td>
+                        <td class="p-3 text-center">35</td>
+                        <td class="p-3 text-center">
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold">92.1%</span>
+                        </td>
+                        <td class="p-3 text-right font-semibold">€2,650</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold">Total</td>
+                        <td class="p-3 text-center font-bold">156</td>
+                        <td class="p-3 text-center font-bold">148</td>
+                        <td class="p-3 text-center">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">94.9%</span>
+                        </td>
+                        <td class="p-3 text-right font-bold">€12,450</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Botones de Exportación -->
+        <div class="flex gap-3">
+            <button class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-semibold hover:bg-slate-900 transition">
+                <i class="fas fa-file-pdf mr-2"></i>Exportar PDF
+            </button>
+            <button onclick="exportarCitasCSV()" class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-semibold hover:bg-slate-900 transition">
+                <i class="fas fa-file-excel mr-2"></i>Exportar CSV
+            </button>
+            <button class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-semibold hover:bg-slate-900 transition">
+                <i class="fas fa-envelope mr-2"></i>Enviar por Email
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    // Estado Global
+    let usuarioActual = null;
+    let rolActual = null;
+    let currentCitaId = null;
+    const STORAGE_KEYS = {
+        users: 'tm_users',
+        citas: 'tm_citas',
+        motos: 'tm_motos',
+        evidencias: 'tm_evidencias',
+        promos: 'tm_promos',
+        currentUser: 'tm_current_user'
+    };
+    const WHATSAPP_NUMBER = '50688973941';
+    const ESTADOS_CITA = ['Agendado', 'En revision', 'En mantenimiento', 'Listo', 'Entregado', 'Cancelada'];
+    const SERVICIOS = {
+        '1': { nombre: 'Cambio de Aceite y Filtros', precio: 45 },
+        '2': { nombre: 'Revision Completa', precio: 125 },
+        '3': { nombre: 'Reparacion Electronica', precio: 95 },
+        '4': { nombre: 'Diagnostico', precio: 30 }
+    };
+
+    function getStored(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function setStored(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function initStorage() {
+        if (!localStorage.getItem(STORAGE_KEYS.users)) {
+            setStored(STORAGE_KEYS.users, [
+                {
+                    nombre: 'Juan Pérez',
+                    email: 'cliente@demo.com',
+                    whatsapp: '+50688973941',
+                    password: 'demo',
+                    visitas: 5,
+                    cortesiaDisponible: false
+                }
+            ]);
+        } else {
+            const users = getStored(STORAGE_KEYS.users, []);
+            const updated = users.map(user => ({
+                visitas: 0,
+                cortesiaDisponible: false,
+                ...user
+            }));
+            setStored(STORAGE_KEYS.users, updated);
+        }
+
+        if (!localStorage.getItem(STORAGE_KEYS.citas)) {
+            const seedCitas = [
+                {
+                    id: 'cita-demo-1',
+                    ownerEmail: 'cliente@demo.com',
+                    moto: 'Honda CB500F',
+                    servicio: 'Revision Completa',
+                    precio: 125,
+                    fecha: '2026-05-26',
+                    hora: '10:00 AM',
+                    estado: 'Agendado',
+                    mecanico: 'Carlos Garcia',
+                    notas: ''
+                },
+                {
+                    id: 'cita-demo-2',
+                    ownerEmail: 'cliente@demo.com',
+                    moto: 'Yamaha MT-07',
+                    servicio: 'Cambio de Aceite y Filtros',
+                    precio: 45,
+                    fecha: '2026-05-25',
+                    hora: '03:30 PM',
+                    estado: 'En revision',
+                    mecanico: 'Roberto Sanchez',
+                    notas: ''
+                },
+                {
+                    id: 'cita-demo-3',
+                    ownerEmail: 'cliente@demo.com',
+                    moto: 'Kawasaki Ninja 400',
+                    servicio: 'Diagnostico',
+                    precio: 30,
+                    fecha: '2026-05-20',
+                    hora: '05:00 PM',
+                    estado: 'Entregado',
+                    mecanico: 'Carlos Garcia',
+                    notas: ''
+                }
+            ];
+            setStored(STORAGE_KEYS.citas, seedCitas);
+        }
+
+        if (!localStorage.getItem(STORAGE_KEYS.motos)) {
+            const seedMotos = [
+                {
+                    id: 'moto-1',
+                    ownerEmail: 'cliente@demo.com',
+                    nombre: 'Honda CB500F',
+                    placa: '45-BCX-89',
+                    anio: 2022,
+                    km: 8450,
+                    proximoCambio: 2000
+                },
+                {
+                    id: 'moto-2',
+                    ownerEmail: 'cliente@demo.com',
+                    nombre: 'Yamaha MT-07',
+                    placa: '56-DYN-45',
+                    anio: 2021,
+                    km: 12890,
+                    proximoCambio: 500
+                },
+                {
+                    id: 'moto-3',
+                    ownerEmail: 'cliente@demo.com',
+                    nombre: 'Kawasaki Ninja 400',
+                    placa: '67-KAW-12',
+                    anio: 2020,
+                    km: 5230,
+                    proximoCambio: 3500
+                }
+            ];
+            setStored(STORAGE_KEYS.motos, seedMotos);
+        }
+
+        if (!localStorage.getItem(STORAGE_KEYS.evidencias)) {
+            setStored(STORAGE_KEYS.evidencias, {});
+        }
+
+        if (!localStorage.getItem(STORAGE_KEYS.promos)) {
+            setStored(STORAGE_KEYS.promos, [
+                {
+                    id: 'promo-1',
+                    titulo: 'Descuento de Bienvenida',
+                    descripcion: '15% en cambio de aceite durante este mes',
+                    descuento: 15,
+                    activa: true
+                }
+            ]);
+        }
+    }
+
+    function setCurrentUser(user) {
+        if (user) {
+            usuarioActual = user.nombre;
+            rolActual = user.rol;
+            setStored(STORAGE_KEYS.currentUser, user);
+        } else {
+            usuarioActual = null;
+            rolActual = null;
+            localStorage.removeItem(STORAGE_KEYS.currentUser);
+        }
+    }
+
+    function getCurrentUser() {
+        const user = getStored(STORAGE_KEYS.currentUser, null);
+        if (user) {
+            usuarioActual = user.nombre;
+            rolActual = user.rol;
+        }
+        return user;
+    }
+
+    function getCitas() {
+        return getStored(STORAGE_KEYS.citas, []);
+    }
+
+    function setCitas(citas) {
+        setStored(STORAGE_KEYS.citas, citas);
+    }
+
+    function getMotos() {
+        return getStored(STORAGE_KEYS.motos, []);
+    }
+
+    function setMotos(motos) {
+        setStored(STORAGE_KEYS.motos, motos);
+    }
+
+    function getEvidencias() {
+        return getStored(STORAGE_KEYS.evidencias, {});
+    }
+
+    function setEvidencias(evidencias) {
+        setStored(STORAGE_KEYS.evidencias, evidencias);
+    }
+
+    function getUserByEmail(email) {
+        return getStored(STORAGE_KEYS.users, []).find(user => user.email === email);
+    }
+
+    function getUserDisplay(email) {
+        const user = getUserByEmail(email);
+        return user ? user.nombre : email;
+    }
+
+    // Función para cambiar de pantalla
+    function irA(pantalla) {
+        // Ocultar todas las pantallas
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        
+        // Mostrar la pantalla deseada
+        document.getElementById(pantalla).classList.add('active');
+        
+        // Scroll al inicio
+        window.scrollTo(0, 0);
+        
+        // Actualizar visibilidad de navbar según rol
+        actualizarNavbar(pantalla);
+    }
+    
+    function actualizarNavbar(pantalla) {
+        const navbars = document.querySelectorAll('.nav-bottom');
+        navbars.forEach(nav => nav.classList.remove('active'));
+
+        // Mostrar navbar solo en pantallas de cliente
+        if (['screen-dashboard-cliente', 'screen-mis-citas', 'screen-progreso-moto', 'screen-agendar', 'screen-evidencia', 'screen-mensajes', 'screen-mis-motos'].includes(pantalla)) {
+            const screen = document.getElementById(pantalla);
+            if (!screen) return;
+            screen.querySelectorAll('.nav-bottom').forEach(nav => nav.classList.add('active'));
+        }
+    }
+    
+    // Login con validación
+    function loginUsuario() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        if (email && password) {
+            const users = getStored(STORAGE_KEYS.users, []);
+            const user = users.find(u => u.email === email);
+
+            if (email.includes('admin')) {
+                loginDemo('admin');
+                return;
+            }
+
+            if (email.includes('mecanico')) {
+                loginDemo('mecanico');
+                return;
+            }
+
+            if (user && user.password === password) {
+                setCurrentUser({
+                    nombre: user.nombre,
+                    email: user.email,
+                    rol: 'cliente'
+                });
+                document.getElementById('nombre-usuario').textContent = user.nombre;
+                irA('screen-dashboard-cliente');
+                return;
+            }
+
+            mostrarMensaje('Correo o contrasena incorrectos');
+        } else {
+            mostrarMensaje('Por favor completa todos los campos');
+        }
+    }
+    
+    // Login Demo rápido
+    function loginDemo(rol) {
+        rolActual = rol;
+        
+        switch(rol) {
+            case 'cliente':
+                usuarioActual = 'Juan Pérez';
+                document.getElementById('nombre-usuario').textContent = 'Juan Pérez';
+                setCurrentUser({ nombre: 'Juan Pérez', email: 'cliente@demo.com', rol: 'cliente' });
+                irA('screen-dashboard-cliente');
+                break;
+            case 'mecanico':
+                usuarioActual = 'Roberto Sánchez';
+                setCurrentUser({ nombre: 'Roberto Sánchez', email: 'mecanico@demo.com', rol: 'mecanico' });
+                irA('screen-dashboard-mecanico');
+                break;
+            case 'admin':
+                usuarioActual = 'Sofía Martínez';
+                setCurrentUser({ nombre: 'Sofía Martínez', email: 'admin@demo.com', rol: 'admin' });
+                irA('screen-dashboard-admin');
+                break;
+        }
+    }
+
+    function cerrarSesion() {
+        setCurrentUser(null);
+        irA('screen-login');
+    }
+    
+    // Registro
+    function registrarUsuario() {
+        const nombre = document.getElementById('registro-nombre').value;
+        const correo = document.getElementById('registro-correo').value;
+        const whatsapp = document.getElementById('registro-whatsapp').value;
+        const pwd1 = document.getElementById('registro-password').value;
+        const pwd2 = document.getElementById('registro-password2').value;
+        
+        if (!nombre || !correo || !whatsapp || !pwd1 || !pwd2) {
+            mostrarMensaje('Por favor completa todos los campos');
+            return;
+        }
+        
+        if (pwd1 !== pwd2) {
+            mostrarMensaje('Las contraseñas no coinciden');
+            return;
+        }
+
+        const users = getStored(STORAGE_KEYS.users, []);
+        if (users.some(u => u.email === correo)) {
+            mostrarMensaje('Ese correo ya esta registrado');
+            return;
+        }
+
+        users.push({
+            nombre,
+            email: correo,
+            whatsapp,
+            password: pwd1,
+            visitas: 0,
+            cortesiaDisponible: false
+        });
+        setStored(STORAGE_KEYS.users, users);
+        
+        mostrarMensaje('¡Registro exitoso! Ya puedes iniciar sesión');
+        irA('screen-login');
+    }
+    
+    // Enviar mensaje
+    function enviarMensaje() {
+        const input = document.getElementById('mensaje-input');
+        const historial = document.getElementById('chat-historial');
+        const texto = input.value.trim();
+        
+        if (texto && historial) {
+            const bubble = document.createElement('div');
+            bubble.className = 'flex justify-end';
+            bubble.innerHTML = `
+                <div class="chat-bubble own rounded-lg px-4 py-2">
+                    <p class="text-sm"></p>
+                    <p class="text-xs text-gray-300 mt-1"></p>
+                </div>
+            `;
+            const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            bubble.querySelector('p').textContent = texto;
+            bubble.querySelectorAll('p')[1].textContent = time;
+            historial.appendChild(bubble);
+            historial.scrollTop = historial.scrollHeight;
+            input.value = '';
+        }
+    }
+
+    function confirmarCita() {
+        const currentUser = getCurrentUser();
+        if (!currentUser || currentUser.rol !== 'cliente') {
+            mostrarMensaje('Inicia sesion como cliente para agendar');
+            irA('screen-login');
+            return;
+        }
+
+        const moto = document.getElementById('agendar-moto').value;
+        const servicioRadio = document.querySelector('input[name="servicio"]:checked');
+        const fecha = document.getElementById('agendar-fecha').value;
+        const hora = document.getElementById('agendar-hora').value;
+        const notas = document.getElementById('agendar-notas').value.trim();
+
+        const motos = getMotos().filter(m => m.ownerEmail === currentUser.email);
+        if (motos.length === 0) {
+            mostrarMensaje('Registra una moto antes de agendar');
+            irA('screen-mis-motos');
+            return;
+        }
+
+        if (!moto || !servicioRadio || !fecha || !hora) {
+            mostrarMensaje('Completa moto, servicio, fecha y hora');
+            return;
+        }
+
+        const citaDate = new Date(`${fecha}T00:00:00`);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (citaDate < today) {
+            mostrarMensaje('La fecha no puede ser en el pasado');
+            return;
+        }
+
+        const servicioInfo = SERVICIOS[servicioRadio.value];
+        let precioFinal = servicioInfo.precio;
+        let cortesiaAplicada = false;
+        const users = getStored(STORAGE_KEYS.users, []);
+        const userRecord = users.find(u => u.email === currentUser.email);
+        if (userRecord && userRecord.cortesiaDisponible) {
+            precioFinal = 0;
+            cortesiaAplicada = true;
+            userRecord.cortesiaDisponible = false;
+            setStored(STORAGE_KEYS.users, users);
+            mostrarMensaje('Se aplico tu cita de cortesia');
+        }
+        const cita = {
+            id: `cita-${Date.now()}`,
+            ownerEmail: currentUser.email,
+            moto,
+            servicio: servicioInfo.nombre,
+            precio: precioFinal,
+            fecha,
+            hora,
+            estado: 'Agendado',
+            mecanico: 'Por asignar',
+            notas,
+            cortesia: cortesiaAplicada,
+            visitaContada: false
+        };
+
+        const citas = getCitas();
+        citas.unshift(cita);
+        setCitas(citas);
+        renderCitas();
+        renderCitasAdmin();
+        renderCitasMecanico();
+        document.getElementById('agendar-fecha').value = '';
+        document.getElementById('agendar-notas').value = '';
+        document.querySelectorAll('input[name="servicio"]').forEach(radio => {
+            radio.checked = false;
+        });
+        renderAgendarMotos();
+        mostrarMensaje('Cita agendada exitosamente');
+        irA('screen-mis-citas');
+    }
+
+    function cancelarCita(id) {
+        const citas = getCitas();
+        const cita = citas.find(c => c.id === id);
+        if (!cita) return;
+        cita.estado = 'Cancelada';
+        setCitas(citas);
+        renderCitas();
+        renderCitasAdmin();
+        renderCitasMecanico();
+        mostrarMensaje('Cita cancelada');
+    }
+
+    function enviarWhatsAppCita(id) {
+        const citas = getCitas();
+        const cita = citas.find(c => c.id === id);
+        if (!cita) return;
+        const currentUser = getCurrentUser();
+        const cliente = currentUser ? currentUser.nombre : 'Cliente';
+        const mensaje = `Hola, soy ${cliente}. Quiero confirmar esta cita:\n` +
+            `Moto: ${cita.moto}\nServicio: ${cita.servicio}\nFecha: ${cita.fecha} ${cita.hora}\nNotas: ${cita.notas || 'Sin notas'}`;
+        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+        window.open(url, '_blank');
+    }
+
+    function renderCitas() {
+        const contenedor = document.getElementById('lista-citas');
+        if (!contenedor) return;
+
+        const currentUser = getCurrentUser();
+        const citas = getCitas();
+        const visibles = currentUser && currentUser.rol === 'cliente'
+            ? citas.filter(c => c.ownerEmail === currentUser.email)
+            : citas;
+
+        if (visibles.length === 0) {
+            contenedor.innerHTML = `
+                <div class="bg-white rounded-lg shadow p-6 text-center text-gray-600">
+                    No tienes citas todavia. Agenda una nueva cita para comenzar.
+                </div>
+            `;
+            return;
+        }
+
+        contenedor.innerHTML = visibles.map(cita => {
+            const badgeClass = cita.estado === 'Agendado'
+                ? 'badge-agendado'
+                : cita.estado === 'En revision'
+                    ? 'badge-revision'
+                    : cita.estado === 'Entregado'
+                        ? 'badge-entregado'
+                        : cita.estado === 'Cancelada'
+                            ? 'badge-entregado'
+                            : 'badge-espera';
+            const cancelarBtn = cita.estado === 'Cancelada'
+                ? ''
+                : `<button onclick="cancelarCita('${cita.id}')" class="flex-1 bg-red-600 text-white py-2 rounded text-sm hover:bg-red-700 transition">
+                        Cancelar
+                   </button>`;
+            const acciones = `
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="abrirProgreso('${cita.id}')" class="flex-1 bg-blue-900 text-white py-2 rounded text-sm hover:bg-blue-950 transition">
+                        Ver Progreso
+                    </button>
+                    <button onclick="abrirEvidencia('${cita.id}')" class="flex-1 bg-orange-600 text-white py-2 rounded text-sm hover:bg-orange-700 transition">
+                        Evidencia
+                    </button>
+                    <button onclick="enviarWhatsAppCita('${cita.id}')" class="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700 transition">
+                        WhatsApp
+                    </button>
+                    ${cancelarBtn}
+                </div>
+            `;
+            const comprobante = cita.estado === 'Entregado'
+                ? `<button onclick="descargarPDF('${cita.moto.replace(/\s+/g, '_')}')" class="w-full bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700 transition">
+                        <i class=\"fas fa-file-pdf mr-2\"></i>Descargar Comprobante
+                   </button>`
+                : '';
+
+            return `
+                <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-900">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-bold text-gray-800">${cita.moto}</p>
+                            <p class="text-sm text-gray-600">${cita.servicio}</p>
+                        </div>
+                        <span class="${badgeClass} px-3 py-1 rounded-full text-xs font-semibold">${cita.estado}</span>
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-1 mb-3">
+                        <p><i class="fas fa-calendar mr-2"></i>${cita.fecha} - ${cita.hora}</p>
+                        <p><i class="fas fa-user mr-2"></i>Mecanico: ${cita.mecanico}</p>
+                        ${cita.cortesia ? '<p class="text-xs text-green-600">Cita de cortesia aplicada</p>' : ''}
+                    </div>
+                    ${acciones}
+                    ${comprobante}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getCitaById(id) {
+        return getCitas().find(cita => cita.id === id);
+    }
+
+    function abrirProgreso(id) {
+        currentCitaId = id;
+        renderProgreso();
+        irA('screen-progreso-moto');
+    }
+
+    function abrirProgresoReciente() {
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            mostrarMensaje('Inicia sesion primero');
+            return;
+        }
+        const citas = getCitas().filter(cita => cita.ownerEmail === currentUser.email);
+        if (citas.length === 0) {
+            mostrarMensaje('No tienes citas registradas');
+            return;
+        }
+        abrirProgreso(citas[0].id);
+    }
+
+    function abrirEvidencia(id) {
+        currentCitaId = id;
+        cargarEvidencias();
+        irA('screen-evidencia');
+    }
+
+    function abrirEvidenciaActual() {
+        if (!currentCitaId) {
+            mostrarMensaje('Selecciona una cita primero');
+            return;
+        }
+        abrirEvidencia(currentCitaId);
+    }
+
+    function renderProgreso() {
+        const cita = getCitaById(currentCitaId);
+        if (!cita) return;
+        const motoEl = document.getElementById('progreso-moto');
+        const servicioEl = document.getElementById('progreso-servicio');
+        const mecanicoEl = document.getElementById('progreso-mecanico');
+        const precioEl = document.getElementById('progreso-precio');
+        const barraEl = document.getElementById('progreso-linea');
+
+        if (motoEl) motoEl.textContent = cita.moto;
+        if (servicioEl) servicioEl.textContent = cita.servicio;
+        if (mecanicoEl) mecanicoEl.textContent = cita.mecanico;
+        if (precioEl) precioEl.textContent = `€${Number(cita.precio || 0).toFixed(2)}`;
+
+        const progresoMap = {
+            'Agendado': 20,
+            'En revision': 50,
+            'En mantenimiento': 70,
+            'Listo': 85,
+            'Entregado': 100,
+            'Cancelada': 20
+        };
+        if (barraEl) {
+            const width = progresoMap[cita.estado] || 20;
+            barraEl.style.width = `${width}%`;
+        }
+    }
+
+    function renderAgendarMotos() {
+        const select = document.getElementById('agendar-moto');
+        if (!select) return;
+        const currentUser = getCurrentUser();
+        const motos = currentUser
+            ? getMotos().filter(m => m.ownerEmail === currentUser.email)
+            : [];
+
+        if (motos.length === 0) {
+            select.innerHTML = '<option value="">Sin motos registradas</option>';
+            return;
+        }
+
+        select.innerHTML = motos.map(moto => `<option value="${moto.nombre}">${moto.nombre}</option>`).join('');
+    }
+
+    function renderMotos() {
+        const contenedor = document.getElementById('lista-motos');
+        if (!contenedor) return;
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            contenedor.innerHTML = '<div class="bg-white rounded-lg shadow p-6 text-center text-gray-600">Inicia sesion para ver tus motos.</div>';
+            return;
+        }
+
+        const motos = getMotos().filter(moto => moto.ownerEmail === currentUser.email);
+        if (motos.length === 0) {
+            contenedor.innerHTML = '<div class="bg-white rounded-lg shadow p-6 text-center text-gray-600">Aun no tienes motos registradas.</div>';
+            return;
+        }
+
+        contenedor.innerHTML = motos.map(moto => `
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-900">
+                <h3 class="font-bold mb-2">${moto.nombre}</h3>
+                <div class="text-sm text-gray-600 space-y-1 mb-3">
+                    <p><i class="fas fa-barcode mr-2"></i>Placa: ${moto.placa}</p>
+                    <p><i class="fas fa-calendar mr-2"></i>Año: ${moto.anio}</p>
+                    <p><i class="fas fa-speedometer-alt mr-2"></i>Km: ${Number(moto.km).toLocaleString('es-ES')}</p>
+                    <p><i class="fas fa-oil-can mr-2"></i>Próximo cambio: ${Number(moto.proximoCambio).toLocaleString('es-ES')} km</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editarMoto('${moto.id}')" class="flex-1 bg-blue-900 text-white py-2 rounded text-sm hover:bg-blue-950 transition">Editar</button>
+                    <button onclick="eliminarMoto('${moto.id}')" class="flex-1 bg-red-600 text-white py-2 rounded text-sm hover:bg-red-700 transition">Eliminar</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function guardarMoto() {
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            mostrarMensaje('Inicia sesion para registrar motos');
+            return;
+        }
+
+        const id = document.getElementById('moto-id').value;
+        const nombre = document.getElementById('moto-nombre').value.trim();
+        const placa = document.getElementById('moto-placa').value.trim();
+        const anio = document.getElementById('moto-anio').value;
+        const km = document.getElementById('moto-km').value;
+        const proximoCambio = document.getElementById('moto-proximo').value;
+
+        if (!nombre || !placa || !anio) {
+            mostrarMensaje('Completa nombre, placa y año');
+            return;
+        }
+
+        const motos = getMotos();
+        if (id) {
+            const existing = motos.find(moto => moto.id === id);
+            if (existing) {
+                existing.nombre = nombre;
+                existing.placa = placa;
+                existing.anio = Number(anio);
+                existing.km = Number(km || 0);
+                existing.proximoCambio = Number(proximoCambio || 0);
+            }
+        } else {
+            motos.push({
+                id: `moto-${Date.now()}`,
+                ownerEmail: currentUser.email,
+                nombre,
+                placa,
+                anio: Number(anio),
+                km: Number(km || 0),
+                proximoCambio: Number(proximoCambio || 0)
+            });
+        }
+
+        setMotos(motos);
+        cancelarEdicionMoto();
+        renderMotos();
+        renderAgendarMotos();
+        mostrarMensaje('Moto guardada');
+    }
+
+    function cancelarEdicionMoto() {
+        document.getElementById('moto-id').value = '';
+        document.getElementById('moto-nombre').value = '';
+        document.getElementById('moto-placa').value = '';
+        document.getElementById('moto-anio').value = '';
+        document.getElementById('moto-km').value = '';
+        document.getElementById('moto-proximo').value = '';
+    }
+
+    function editarMoto(id) {
+        const moto = getMotos().find(item => item.id === id);
+        if (!moto) return;
+        document.getElementById('moto-id').value = moto.id;
+        document.getElementById('moto-nombre').value = moto.nombre;
+        document.getElementById('moto-placa').value = moto.placa;
+        document.getElementById('moto-anio').value = moto.anio;
+        document.getElementById('moto-km').value = moto.km;
+        document.getElementById('moto-proximo').value = moto.proximoCambio;
+        window.scrollTo(0, 0);
+    }
+
+    function eliminarMoto(id) {
+        const motos = getMotos().filter(moto => moto.id !== id);
+        setMotos(motos);
+        renderMotos();
+        renderAgendarMotos();
+        mostrarMensaje('Moto eliminada');
+    }
+
+    function renderCitasMecanico() {
+        const contenedor = document.getElementById('lista-citas-mecanico');
+        if (!contenedor) return;
+        const citas = getCitas();
+        if (citas.length === 0) {
+            contenedor.innerHTML = '<div class="bg-white rounded-lg shadow p-6 text-center text-slate-600">No hay citas registradas.</div>';
+            return;
+        }
+
+        contenedor.innerHTML = citas.map(cita => `
+            <div class="bg-white rounded-lg shadow-md border-l-4 border-orange-500 p-4 hover:shadow-lg transition">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h3 class="font-bold text-slate-900">${cita.moto}</h3>
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-semibold">${cita.estado}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-1">Cliente: <span class="font-semibold">${getUserDisplay(cita.ownerEmail)}</span></p>
+                        <p class="text-slate-600 text-sm mb-2">Servicio: ${cita.servicio}</p>
+                        <div class="flex gap-4 text-xs text-slate-600">
+                            <span><i class="fas fa-clock mr-1"></i>${cita.fecha} - ${cita.hora}</span>
+                            <span><i class="fas fa-tag mr-1"></i>€${Number(cita.precio || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <select onchange="actualizarEstadoCita('${cita.id}', this.value)" class="text-xs border-2 border-slate-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-slate-700 font-semibold">
+                        ${ESTADOS_CITA.map(estado => `<option ${estado === cita.estado ? 'selected' : ''}>${estado}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200">
+                    <button onclick="abrirEvidencia('${cita.id}')" class="bg-orange-600 text-white py-2 rounded text-sm hover:bg-orange-700 transition font-semibold flex items-center justify-center">
+                        <i class="fas fa-camera mr-1"></i>Fotos
+                    </button>
+                    <button onclick="irA('screen-mensajes')" class="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700 transition font-semibold flex items-center justify-center">
+                        <i class="fas fa-message mr-1"></i>Chat
+                    </button>
+                    <button onclick="mostrarMensaje('Notas guardadas')" class="bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-700 transition font-semibold flex items-center justify-center">
+                        <i class="fas fa-clipboard mr-1"></i>Notas
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderRecompensas() {
+        const visitasEl = document.getElementById('recompensas-visitas');
+        const msgEl = document.getElementById('recompensas-msg');
+        const lineFill = document.getElementById('reward-line-fill');
+        const stepsEl = document.querySelectorAll('[data-reward-step]');
+        if (!visitasEl || !msgEl) return;
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            visitasEl.textContent = '0/7 visitas';
+            msgEl.textContent = 'Sin cortesia disponible';
+            if (lineFill) lineFill.style.width = '0%';
+            stepsEl.forEach(step => {
+                step.classList.remove('completed', 'active');
+                step.textContent = step.dataset.rewardStep;
+            });
+            return;
+        }
+        const userRecord = getUserByEmail(currentUser.email);
+        const visitas = userRecord ? (userRecord.visitas || 0) : 0;
+        const cortesia = userRecord ? userRecord.cortesiaDisponible : false;
+        const progress = cortesia ? 7 : (visitas % 7);
+        const displayProgress = progress === 0 && visitas > 0 ? 7 : progress;
+        visitasEl.textContent = `${displayProgress}/7 visitas`;
+        msgEl.textContent = cortesia ? 'Tienes una cita de cortesia disponible' : 'Sin cortesia disponible';
+
+        const percent = displayProgress <= 1 ? 0 : ((displayProgress - 1) / 6) * 100;
+        if (lineFill) lineFill.style.width = `${percent}%`;
+
+        stepsEl.forEach(step => {
+            const stepIndex = Number(step.dataset.rewardStep);
+            step.classList.remove('completed', 'active');
+            step.textContent = step.dataset.rewardStep;
+
+            if (displayProgress === 7 && stepIndex <= 7) {
+                step.classList.add('completed');
+                step.innerHTML = '<i class="fas fa-check"></i>';
+                if (stepIndex === 7) {
+                    step.classList.add('active');
+                }
+                return;
+            }
+
+            if (stepIndex < displayProgress) {
+                step.classList.add('completed');
+                step.innerHTML = '<i class="fas fa-check"></i>';
+            } else if (stepIndex === displayProgress && displayProgress > 0) {
+                step.classList.add('active');
+            }
+        });
+    }
+
+    function getPromos() {
+        return getStored(STORAGE_KEYS.promos, []);
+    }
+
+    function setPromos(promos) {
+        setStored(STORAGE_KEYS.promos, promos);
+    }
+
+    let promoIndex = 0;
+    let promoIntervalId = null;
+
+    function getPromosActivas() {
+        return getPromos().filter(item => item.activa);
+    }
+
+    function promoPrev() {
+        const promos = getPromosActivas();
+        if (promos.length === 0) return;
+        promoIndex = (promoIndex - 1 + promos.length) % promos.length;
+        renderPromoCliente();
+    }
+
+    function promoNext() {
+        const promos = getPromosActivas();
+        if (promos.length === 0) return;
+        promoIndex = (promoIndex + 1) % promos.length;
+        renderPromoCliente();
+    }
+
+    function startPromoCarousel() {
+        if (promoIntervalId) {
+            clearInterval(promoIntervalId);
+            promoIntervalId = null;
+        }
+        const promos = getPromosActivas();
+        if (promos.length <= 1) return;
+        promoIntervalId = setInterval(() => {
+            promoNext();
+        }, 5000);
+    }
+
+    function renderPromoCliente() {
+        const tituloEl = document.getElementById('promo-titulo');
+        const descEl = document.getElementById('promo-descripcion');
+        const botonEl = document.getElementById('promo-boton');
+        const badgeEl = document.getElementById('promo-badge');
+        const indicadoresEl = document.getElementById('promo-indicadores');
+        const cardEl = document.getElementById('promo-card');
+        if (!tituloEl || !descEl || !botonEl) return;
+
+        const promos = getPromosActivas();
+        if (cardEl) {
+            cardEl.classList.add('is-fading');
+        }
+        if (promos.length === 0) {
+            tituloEl.innerHTML = '<i class="fas fa-gift mr-2"></i>Promociones';
+            descEl.textContent = 'Sin promociones activas.';
+            botonEl.style.display = 'none';
+            botonEl.onclick = null;
+            if (badgeEl) badgeEl.textContent = 'Sin oferta';
+            if (indicadoresEl) indicadoresEl.innerHTML = '';
+            if (cardEl) {
+                setTimeout(() => cardEl.classList.remove('is-fading'), 10);
+            }
+            startPromoCarousel();
+            return;
+        }
+
+        if (promoIndex >= promos.length) {
+            promoIndex = 0;
+        }
+
+        const promo = promos[promoIndex];
+        tituloEl.innerHTML = `<i class="fas fa-gift mr-2"></i>${promo.titulo}`;
+        descEl.textContent = promo.descripcion;
+        botonEl.style.display = 'inline-block';
+        botonEl.textContent = 'Ver oferta';
+        botonEl.onclick = () => mostrarMensaje(`${promo.titulo}: ${promo.descripcion}`);
+        if (badgeEl) badgeEl.textContent = `${promo.descuento || 0}% OFF`;
+
+        if (indicadoresEl) {
+            indicadoresEl.innerHTML = promos.map((_, index) => {
+                const active = index === promoIndex ? 'bg-white' : 'bg-white/40';
+                return `<span class="w-2 h-2 rounded-full ${active}"></span>`;
+            }).join('');
+        }
+
+        if (cardEl) {
+            setTimeout(() => cardEl.classList.remove('is-fading'), 10);
+        }
+
+        startPromoCarousel();
+    }
+
+    function guardarPromo() {
+        const titulo = document.getElementById('promo-titulo-input').value.trim();
+        const descripcion = document.getElementById('promo-descripcion-input').value.trim();
+        const descuento = document.getElementById('promo-descuento-input').value;
+        const activa = document.getElementById('promo-activa-input').checked;
+
+        if (!titulo || !descripcion) {
+            mostrarMensaje('Completa titulo y descripcion');
+            return;
+        }
+
+        const promos = getPromos();
+
+        promos.unshift({
+            id: `promo-${Date.now()}`,
+            titulo,
+            descripcion,
+            descuento: Number(descuento || 0),
+            activa
+        });
+        setPromos(promos);
+        renderPromosAdmin();
+        renderPromoCliente();
+        document.getElementById('promo-titulo-input').value = '';
+        document.getElementById('promo-descripcion-input').value = '';
+        document.getElementById('promo-descuento-input').value = '';
+        document.getElementById('promo-activa-input').checked = false;
+        mostrarMensaje('Promocion guardada');
+    }
+
+    function renderPromosAdmin() {
+        const contenedor = document.getElementById('admin-promos-list');
+        if (!contenedor) return;
+        const promos = getPromos();
+        if (promos.length === 0) {
+            contenedor.innerHTML = '<div class="text-sm text-gray-500">No hay promociones creadas.</div>';
+            return;
+        }
+
+        contenedor.innerHTML = promos.map(promo => `
+            <div class="border border-gray-200 rounded p-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-semibold">${promo.titulo}</p>
+                        <p class="text-sm text-gray-600">${promo.descripcion}</p>
+                        <p class="text-xs text-gray-500">Descuento: ${promo.descuento || 0}%</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="activarPromo('${promo.id}')" class="text-xs px-3 py-1 rounded ${promo.activa ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}">
+                            ${promo.activa ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button onclick="eliminarPromo('${promo.id}')" class="text-xs px-3 py-1 rounded bg-red-600 text-white">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function activarPromo(id) {
+        const promos = getPromos();
+        const promo = promos.find(item => item.id === id);
+        if (!promo) return;
+        promo.activa = !promo.activa;
+        setPromos(promos);
+        renderPromosAdmin();
+        renderPromoCliente();
+    }
+
+    function eliminarPromo(id) {
+        const promos = getPromos().filter(promo => promo.id !== id);
+        setPromos(promos);
+        renderPromosAdmin();
+        renderPromoCliente();
+    }
+
+    function renderCitasAdmin() {
+        const tbody = document.getElementById('admin-citas-body');
+        if (!tbody) return;
+        const citas = getCitas();
+        if (citas.length === 0) {
+            tbody.innerHTML = '<tr><td class="p-3 text-center text-gray-500" colspan="4">No hay citas registradas.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = citas.map(cita => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3">${cita.moto}</td>
+                <td class="p-3">${getUserDisplay(cita.ownerEmail)}</td>
+                <td class="p-3">
+                    <select onchange="actualizarEstadoCita('${cita.id}', this.value)" class="text-xs bg-blue-100 text-blue-900 border-0 rounded px-2 py-1">
+                        ${ESTADOS_CITA.map(estado => `<option ${estado === cita.estado ? 'selected' : ''}>${estado}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="p-3">
+                    <button onclick="descargarPDF('${cita.id}')" class="text-blue-600 hover:underline text-xs">PDF</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function actualizarEstadoCita(id, nuevoEstado) {
+        const citas = getCitas();
+        const cita = citas.find(item => item.id === id);
+        if (!cita) return;
+        cita.estado = nuevoEstado;
+        if (nuevoEstado === 'Entregado' && !cita.visitaContada) {
+            const users = getStored(STORAGE_KEYS.users, []);
+            const userRecord = users.find(u => u.email === cita.ownerEmail);
+            if (userRecord) {
+                userRecord.visitas = (userRecord.visitas || 0) + 1;
+                if (userRecord.visitas % 7 === 0) {
+                    userRecord.cortesiaDisponible = true;
+                }
+                setStored(STORAGE_KEYS.users, users);
+                renderRecompensas();
+            }
+            cita.visitaContada = true;
+        }
+        setCitas(citas);
+        renderCitas();
+        renderCitasAdmin();
+        renderCitasMecanico();
+        if (currentCitaId === id) {
+            renderProgreso();
+        }
+    }
+
+    function exportarCitasCSV() {
+        const citas = getCitas();
+        const header = ['id', 'cliente', 'moto', 'servicio', 'precio', 'fecha', 'hora', 'estado', 'mecanico', 'notas'];
+        const rows = citas.map(cita => [
+            cita.id,
+            cita.ownerEmail,
+            cita.moto,
+            cita.servicio,
+            cita.precio,
+            cita.fecha,
+            cita.hora,
+            cita.estado,
+            cita.mecanico,
+            (cita.notas || '').replace(/\n/g, ' ')
+        ]);
+        const csv = [header, ...rows].map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'citas.csv';
+        link.click();
+    }
+
+    function guardarEvidencias() {
+        if (!currentCitaId) {
+            mostrarMensaje('Selecciona una cita primero');
+            return;
+        }
+        const input = document.getElementById('evidencia-input');
+        if (!input || !input.files || input.files.length === 0) {
+            mostrarMensaje('Selecciona al menos una imagen');
+            return;
+        }
+
+        const files = Array.from(input.files);
+        const lectores = files.map(file => new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        }));
+
+        Promise.all(lectores).then(resultados => {
+            const evidencias = getEvidencias();
+            const actuales = evidencias[currentCitaId] || [];
+            evidencias[currentCitaId] = [...actuales, ...resultados];
+            setEvidencias(evidencias);
+            input.value = '';
+            cargarEvidencias();
+            mostrarMensaje('Evidencias guardadas');
+        });
+    }
+
+    function cargarEvidencias() {
+        const grid = document.getElementById('evidencia-grid');
+        if (!grid) return;
+        if (!currentCitaId) {
+            grid.innerHTML = '<div class="col-span-2 text-center text-gray-500">Selecciona una cita.</div>';
+            return;
+        }
+        const evidencias = getEvidencias();
+        const fotos = evidencias[currentCitaId] || [];
+        if (fotos.length === 0) {
+            grid.innerHTML = '<div class="col-span-2 text-center text-gray-500">No hay fotos aun.</div>';
+            return;
+        }
+        grid.innerHTML = fotos.map(src => `
+            <div class="rounded-lg overflow-hidden border border-gray-200">
+                <img src="${src}" alt="Evidencia" class="w-full h-32 object-cover">
+            </div>
+        `).join('');
+    }
+    
+    // Descargar PDF
+    function descargarPDF(nombre) {
+        mostrarMensaje('Descargando ' + nombre + '.pdf...');
+    }
+    
+    // Mostrar notificaciones
+    function mostrarMensaje(mensaje) {
+        const alerta = document.createElement('div');
+        alerta.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1A5EA8;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-in-out;
+        `;
+        alerta.textContent = mensaje;
+        document.body.appendChild(alerta);
+        
+        setTimeout(() => {
+            alerta.style.animation = 'slideOut 0.3s ease-in-out';
+            setTimeout(() => alerta.remove(), 300);
+        }, 3000);
+    }
+    
+    // Animaciones CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Inicializar gráficas del dashboard admin
+    function inicializarGraficas() {
+        // Gráfica 1: Servicios Más Solicitados (Barras Horizontales)
+        const ctxServicios = document.getElementById('chartServicios');
+        if (ctxServicios) {
+            new Chart(ctxServicios, {
+                type: 'bar',
+                data: {
+                    labels: ['Cambio de Aceite', 'Revisión Completa', 'Reparación Electrónica', 'Diagnóstico', 'Otros'],
+                    datasets: [{
+                        label: 'Número de Servicios',
+                        data: [85, 62, 45, 31, 24],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f97316',
+                            '#ef4444',
+                            '#6b7280'
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.x + ' servicios (' + Math.round(context.parsed.x / 2.47) + '%)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gráfica 2: Estado de Citas (Donut)
+        const ctxEstado = document.getElementById('chartEstadoCitas');
+        if (ctxEstado) {
+            new Chart(ctxEstado, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Agendadas', 'En Proceso', 'Completadas'],
+                    datasets: [{
+                        data: [85, 62, 100],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#fbbf24',
+                            '#10b981'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.parsed / total) * 100);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gráfica 3: Ingresos por Servicio (Barras Verticales)
+        const ctxIngresos = document.getElementById('chartIngresos');
+        if (ctxIngresos) {
+            new Chart(ctxIngresos, {
+                type: 'bar',
+                data: {
+                    labels: ['Cambio Aceite', 'Revisión', 'Electrónica', 'Diagnóstico', 'Otros'],
+                    datasets: [{
+                        label: 'Ingresos (₡)',
+                        data: [3825, 3100, 2700, 1860, 965],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f97316',
+                            '#ef4444',
+                            '#6b7280'
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return '₡' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5000,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₡' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gráfica 4: Tendencia de Ingresos
+        const ctxTendencia = document.getElementById('chartTendencia');
+        if (ctxTendencia) {
+            new Chart(ctxTendencia, {
+                type: 'line',
+                data: {
+                    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo', 
+                             'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+                    datasets: [{
+                        label: 'Ingresos Diarios (₡)',
+                        data: [450, 520, 480, 650, 730, 580, 220, 520, 610, 540, 720, 850, 680, 290],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Ingresos: ₡' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1000,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₡' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Llamar a inicializarGraficas cuando se accede al dashboard admin
+    const originalIrA = irA;
+    irA = function(pantalla) {
+        originalIrA(pantalla);
+        if (pantalla === 'screen-dashboard-admin') {
+            setTimeout(inicializarGraficas, 100);
+        }
+        if (pantalla === 'screen-mis-citas') {
+            renderCitas();
+        }
+        if (pantalla === 'screen-dashboard-cliente') {
+            renderPromoCliente();
+            renderRecompensas();
+        }
+        if (pantalla === 'screen-mis-motos') {
+            renderMotos();
+        }
+        if (pantalla === 'screen-agendar') {
+            renderAgendarMotos();
+        }
+        if (pantalla === 'screen-dashboard-mecanico') {
+            renderCitasMecanico();
+        }
+        if (pantalla === 'screen-admin-citas') {
+            renderCitasAdmin();
+        }
+        if (pantalla === 'screen-admin-promos') {
+            renderPromosAdmin();
+        }
+        if (pantalla === 'screen-evidencia') {
+            cargarEvidencias();
+        }
+    };
+    
+    // Crear y asignar tarea
+    function crearTarea() {
+        const empleado = document.getElementById('selectEmpleado');
+        const titulo = document.getElementById('inputTareaTitulo');
+        const descripcion = document.getElementById('inputTareaDescripcion');
+        const fecha = document.getElementById('inputTareaFecha');
+        const hora = document.getElementById('inputTareaHora');
+        const prioridad = document.getElementById('selectPrioridad');
+        
+        if (!empleado.value || !titulo.value || !descripcion.value || !fecha.value) {
+            mostrarMensaje('❌ Por favor completa todos los campos requeridos');
+            return;
+        }
+        
+        const nombreEmpleado = empleado.options[empleado.selectedIndex].text;
+        
+        mostrarMensaje(`✅ Tarea asignada a ${nombreEmpleado}: "${titulo.value}"`);
+        
+        // Limpiar formulario
+        empleado.value = '';
+        titulo.value = '';
+        descripcion.value = '';
+        fecha.value = '';
+        hora.value = '';
+        prioridad.value = 'media';
+    }
+    
+    // Inicializar
+    initStorage();
+    renderCitas();
+    renderMotos();
+    renderAgendarMotos();
+    renderCitasAdmin();
+    renderCitasMecanico();
+    renderPromosAdmin();
+    renderPromoCliente();
+    renderRecompensas();
+    const activeScreen = document.querySelector('.screen.active');
+    if (activeScreen) {
+        actualizarNavbar(activeScreen.id);
+    }
+    console.log('Sistema de Citas - Taller Vázquez Motos iniciado');
+</script>
+
+</body>
+</html>
