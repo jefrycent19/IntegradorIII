@@ -1,2 +1,78 @@
-/* For information on how to create your own theme, please refer to:
-http://ionicframework.com/docs/theming/ */
+/* Tailwind v4 */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+/* ================================================
+   GARAGE PRO — Design System
+   Oscuro · Bold · Naranja mecánico
+   ================================================ */
+:root {
+  /* Superficies */
+  --bg-base:    #070B18;
+  --bg-surface: #0D1425;
+  --bg-card:    #111827;
+  --bg-hover:   #1A2340;
+  --border:     #1E2D45;
+  --border-light: #243352;
+
+  /* Tipografía */
+  --text-primary:   #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted:     #475569;
+
+  /* Acento principal — naranja mecánico */
+  --accent:        #F97316;
+  --accent-light:  #FB923C;
+  --accent-glow:   rgba(249,115,22,0.25);
+  --accent-subtle: rgba(249,115,22,0.08);
+
+  /* Colores de estado */
+  --success: #22C55E;
+  --warning: #EAB308;
+  --danger:  #EF4444;
+  --info:    #3B82F6;
+
+  /* Ionic overrides */
+  --ion-font-family:      'Inter', sans-serif;
+  --ion-background-color: #070B18;
+  --ion-text-color:       #F8FAFC;
+  --ion-color-primary:    #F97316;
+  --ion-color-primary-rgb: 249,115,22;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-shade:    #EA6C0B;
+  --ion-color-primary-tint:     #FB923C;
+}
+
+/* Reset y fuente global */
+*, *::before, *::after { box-sizing: border-box; }
+* { font-family: 'Inter', -apple-system, sans-serif; }
+button, select { background: transparent; border: none; outline: none; }
+
+/* Ionic dark override */
+ion-app, ion-page    { background: var(--bg-base) !important; }
+ion-content          { --background: var(--bg-base); --color: var(--text-primary); }
+ion-toolbar          { --background: var(--bg-surface); --border-color: var(--border); --color: var(--text-primary); }
+ion-title            { color: var(--text-primary) !important; font-weight: 700; letter-spacing: -0.01em; }
+ion-menu-button      { color: var(--text-muted) !important; }
+ion-header           { box-shadow: 0 1px 0 var(--border) !important; }
+ion-fab-button       { --background: var(--accent); --background-activated: var(--accent-light); --box-shadow: 0 0 20px var(--accent-glow); }
+ion-spinner          { color: var(--accent); }
+ion-segment          { --background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; }
+ion-segment-button   { --color: var(--text-muted); --color-checked: var(--text-primary); --indicator-color: var(--accent); }
+ion-badge            { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.7rem; }
+ion-back-button      { --color: var(--text-secondary); }
+ion-refresher        { --background: var(--bg-base); }
+
+/* Scrollbar oscura */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+/* Utilidades custom */
+.card-dark {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.text-accent { color: var(--accent); }
+.bg-accent   { background: var(--accent); }
