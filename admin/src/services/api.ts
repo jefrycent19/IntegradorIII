@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// URL del backend — configurable por entorno.
+// En desarrollo usa el Laravel local; en producción (build) usa VITE_API_URL.
+const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1';
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL,
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 });
 
