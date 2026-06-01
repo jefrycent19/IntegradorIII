@@ -60,7 +60,18 @@ const Dashboard: React.FC = () => {
   const cargar = async () => {
     setLoading(true);
     setError(false);
-    try { const r = await api.get("/dashboard"); setData(r.data); }
+    try {
+      const r = await api.get("/dashboard");
+      const d = r.data ?? {};
+      // Laravel serializa colecciones vacías como {} en vez de []; normalizamos
+      // a array para que los .map/.length nunca truenen con datos vacíos.
+      const arr = (v: any) => (Array.isArray(v) ? v : []);
+      d.ultimas_ot = arr(d.ultimas_ot);
+      d.tecnicos_productivos = arr(d.tecnicos_productivos);
+      d.tendencia_7dias = arr(d.tendencia_7dias);
+      d.carga_tecnicos = arr(d.carga_tecnicos);
+      setData(d);
+    }
     catch { setError(true); }
     finally { setLoading(false); }
   };

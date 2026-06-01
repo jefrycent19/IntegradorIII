@@ -90,7 +90,8 @@ class DashboardController extends Controller
             ->groupBy('users.id', 'users.nombre', 'users.apellido')
             ->orderByDesc('entregadas')
             ->limit(5)
-            ->get();
+            ->get()
+            ->all();   // array nativo -> json [] cuando está vacío (no {})
 
         // --- Tiempo promedio de reparación (días) ---
         $tiempoPromedio = OrdenTrabajo::where('estado', 'entregada')
@@ -114,7 +115,9 @@ class DashboardController extends Controller
                 'tecnico'    => $ot->tecnico ? $ot->tecnico->nombre . ' ' . $ot->tecnico->apellido : null,
                 'semaforo'   => $ot->tiemposEtapa->whereNull('fin')->last()?->semaforo ?? 'verde',
                 'fecha_estimada' => $ot->fecha_estimada_entrega,
-            ]);
+            ])
+            ->values()
+            ->all();   // array nativo -> json [] cuando está vacío (no {})
 
         // --- Conversión diagnóstico → reparación ---
         $totalDiagnosticos  = DB::table('diagnosticos')->count();
@@ -149,7 +152,7 @@ class DashboardController extends Controller
                 'fecha' => $fecha->format('d/m'),
                 'total' => round((float) ($ventasPorDia[$fecha->format('Y-m-d')] ?? 0), 2),
             ];
-        });
+        })->values()->all();
 
         // --- Carga de técnicos activos ---
         $cargaTecnicos = DB::table('users')
@@ -167,7 +170,8 @@ class DashboardController extends Controller
             )
             ->groupBy('users.id', 'users.nombre', 'users.apellido')
             ->orderBy('ot_activas', 'desc')
-            ->get();
+            ->get()
+            ->all();   // array nativo -> json [] cuando está vacío (no {})
 
         return [
             'ot' => [
