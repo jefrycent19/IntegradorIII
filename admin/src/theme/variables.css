@@ -55,11 +55,12 @@
 button, select { background: transparent; border: none; outline: none; }
 
 /* Foco visible accesible — reemplaza el outline:none SOLO para navegación por teclado.
-   El mouse no dispara :focus-visible, así que no afecta el look al hacer clic. */
+   El mouse no dispara :focus-visible, así que no afecta el look al hacer clic.
+   NO seteamos border-radius aquí: el outline ya sigue el radio propio del elemento,
+   y forzar 6px convertía las pastillas (rounded-full) en cuadrados al enfocarlas. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 /* Feedback al presionar (opt-in con la clase .press) — scale sutil al click/tap.
