@@ -15,16 +15,18 @@ class DashboardController extends Controller
 {
     public function index(): JsonResponse
     {
-        // Cache de 60 segundos — evita recalcular en cada clic
+        // Cache de 60 segundos — evita recalcular en cada clic.
+        // Cacheamos el ARRAY de datos (serializable) y envolvemos en JSON después.
+        // Cachear el JsonResponse rompe con drivers que serializan (database/redis).
         $userId = auth()->id();
         $cacheKey = "dashboard_data_{$userId}";
 
-        return Cache::remember($cacheKey, 60, function () {
-            return $this->buildDashboard();
-        });
+        $data = Cache::remember($cacheKey, 60, fn () => $this->buildDashboard());
+
+        return response()->json($data);
     }
 
-    private function buildDashboard(): JsonResponse
+    private function buildDashboard(): array
     {
         $hoy      = today();
         $inicioSemana = today()->startOfWeek();
@@ -167,7 +169,7 @@ class DashboardController extends Controller
             ->orderBy('ot_activas', 'desc')
             ->get();
 
-        return response()->json([
+        return [
             'ot' => [
                 'activas'           => $otActivas,
                 'atrasadas'         => $otAtrasadas,
@@ -202,7 +204,7 @@ class DashboardController extends Controller
             'tecnicos_productivos'  => $tecnicosProductivos,
             'carga_tecnicos'        => $cargaTecnicos,
             'ultimas_ot'            => $ultimasOt,
-        ]);
+        ];
     }
 }
 
