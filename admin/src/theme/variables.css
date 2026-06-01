@@ -101,6 +101,77 @@ ion-badge            { font-family: 'Inter', sans-serif; font-weight: 600; font-
 ion-back-button      { --color: var(--text-secondary); }
 ion-refresher        { --background: var(--bg-base); }
 
+/* ================================================
+   Ionic components → tema oscuro (consistencia global)
+   Hace que TODAS las pantallas (incluso las que aún usan
+   componentes Ionic por defecto) se vean oscuras y uniformes.
+   ================================================ */
+:root {
+  --ion-item-background: var(--bg-card);
+  --ion-card-background: var(--bg-card);
+  --ion-toolbar-background: var(--bg-surface);
+}
+
+/* Toolbars con color="primary" → oscuros como el resto (no naranja chillón) */
+ion-toolbar.ion-color-primary {
+  --background: var(--bg-surface);
+  --color: var(--text-primary);
+  --border-color: var(--border);
+}
+ion-toolbar.ion-color-primary ion-button,
+ion-toolbar.ion-color-primary ion-back-button,
+ion-toolbar.ion-color-primary ion-menu-button,
+ion-toolbar.ion-color-primary ion-title { --color: var(--text-primary); color: var(--text-primary) !important; }
+
+/* Cards — oscuras, sin sombra blanca, borde sutil */
+ion-card {
+  --background: var(--bg-card);
+  --color: var(--text-primary);
+  background: var(--bg-card);
+  box-shadow: none;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+ion-card-title    { color: var(--text-primary) !important; }
+ion-card-subtitle { color: var(--text-muted) !important; }
+
+/* Listas e items */
+ion-list { background: transparent; }
+ion-item {
+  --background: var(--bg-card);
+  --color: var(--text-primary);
+  --border-color: var(--border);
+}
+ion-item h1, ion-item h2, ion-item h3 { color: var(--text-primary); }
+ion-item p           { color: var(--text-muted); }
+ion-label            { color: var(--text-primary); }
+ion-list-header      { color: var(--text-secondary); font-weight: 700; }
+ion-note             { color: var(--text-muted); }
+
+/* Searchbar — fondo oscuro, sin recuadro blanco */
+ion-searchbar {
+  --background: var(--bg-card) !important;
+  --color: var(--text-primary);
+  --placeholder-color: var(--text-muted);
+  --icon-color: var(--text-muted);
+  --clear-button-color: var(--text-muted);
+  --box-shadow: none;
+  --border-radius: 12px;
+  padding: 8px 12px;
+}
+
+/* Selects, fechas e inputs nativos (filtros) */
+ion-select { --placeholder-color: var(--text-muted); color: var(--text-primary); }
+select, input[type="date"], input[type="datetime-local"], input[type="time"] {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+select option { background: var(--bg-card); color: var(--text-primary); }
+::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+
 /* Scrollbar oscura */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }

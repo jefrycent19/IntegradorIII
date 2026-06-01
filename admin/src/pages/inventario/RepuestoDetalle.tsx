@@ -49,6 +49,17 @@ const RepuestoDetalle: React.FC = () => {
     </IonPage>
   );
 
+  // Guard null: /inventario/nuevo monta esta vista en segundo plano (id="nuevo").
+  if (!repuesto) return (
+    <IonPage>
+      <IonContent className="ion-padding">
+        <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
+          Repuesto no encontrado.
+        </div>
+      </IonContent>
+    </IonPage>
+  );
+
   const stockBajo = repuesto.stock_actual <= repuesto.stock_minimo;
 
   return (

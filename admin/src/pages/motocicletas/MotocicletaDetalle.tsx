@@ -52,6 +52,18 @@ const MotocicletaDetalle: React.FC = () => {
     </IonPage>
   );
 
+  // Guard null: la ruta /motocicletas/nueva monta esta vista en segundo plano
+  // (id="nueva"); sin esto reventaría y tumbaría toda la app.
+  if (!moto) return (
+    <IonPage>
+      <IonContent className="ion-padding">
+        <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
+          Motocicleta no encontrada.
+        </div>
+      </IonContent>
+    </IonPage>
+  );
+
   return (
     <IonPage>
       <IonHeader>

@@ -10,10 +10,10 @@ import api from "../../services/api";
 import { useCanEdit } from "../../hooks/useCanEdit";
 
 const estadoConfig: Record<string, { color: string; bg: string; label: string }> = {
-  pendiente:  { color: "#F59E0B", bg: "#FFFBEB", label: "Pendiente" },
-  confirmada: { color: "#22C55E", bg: "#F0FDF4", label: "Confirmada" },
-  cancelada:  { color: "#DC2626", bg: "#FEF2F2", label: "Cancelada" },
-  completada: { color: "#6B7280", bg: "#F9FAFB", label: "Completada" },
+  pendiente:  { color: "var(--warning)",     bg: "rgba(234,179,8,0.12)", label: "Pendiente" },
+  confirmada: { color: "var(--success)",     bg: "rgba(34,197,94,0.12)", label: "Confirmada" },
+  cancelada:  { color: "var(--danger)",      bg: "rgba(239,68,68,0.12)", label: "Cancelada" },
+  completada: { color: "var(--text-muted)",  bg: "var(--bg-hover)",      label: "Completada" },
 };
 
 const tipoIcon: Record<string, string> = {
@@ -34,28 +34,22 @@ const AgendaDia: React.FC = () => {
 
   const cargar = async () => {
     setLoading(true);
-    const { data } = await api.get("/citas", { params: { fecha: fechaHoy, per_page: 50 } });
-    // Ordenar por hora
-    const ordenadas = (data.data ?? []).sort((a: any, b: any) =>
-      new Date(a.fecha_hora).getTime() - new Date(b.fecha_hora).getTime()
-    );
-    setCitas(ordenadas);
-    setLoading(false);
+    try {
+      const { data } = await api.get("/citas", { params: { fecha: fechaHoy, per_page: 50 } });
+      const ordenadas = (data.data ?? []).sort((a: any, b: any) =>
+        new Date(a.fecha_hora).getTime() - new Date(b.fecha_hora).getTime()
+      );
+      setCitas(ordenadas);
+    } catch { setCitas([]); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => { cargar(); }, []);
 
-  const confirmar = async (id: number) => {
-    await api.patch(`/citas/${id}`, { estado: "confirmada" });
-    cargar();
-  };
+  const confirmar = async (id: number) => { await api.patch(`/citas/${id}`, { estado: "confirmada" }); cargar(); };
+  const cancelar  = async (id: number) => { await api.delete(`/citas/${id}`); cargar(); };
 
-  const cancelar = async (id: number) => {
-    await api.delete(`/citas/${id}`);
-    cargar();
-  };
-
-  const pendientes = citas.filter(c => c.estado === "pendiente").length;
+  const pendientes  = citas.filter(c => c.estado === "pendiente").length;
   const confirmadas = citas.filter(c => c.estado === "confirmada").length;
 
   return (
@@ -72,38 +66,37 @@ const AgendaDia: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
-        {/* Header con fecha */}
-        <div className="bg-white px-5 py-4 shadow-sm" style={{ borderBottom: "1px solid #F3F4F6" }}>
+        {/* Header con fecha + resumen */}
+        <div className="px-5 py-4" style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <Calendar size={18} style={{ color: "#0F2A3D" }} />
-            <p className="font-bold capitalize" style={{ color: "#1F2937" }}>{hoy}</p>
+            <Calendar size={18} style={{ color: "var(--accent)" }} />
+            <p className="font-bold capitalize" style={{ color: "var(--text-primary)" }}>{hoy}</p>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Total", value: citas.length, color: "#0F2A3D" },
-              { label: "Pendientes", value: pendientes, color: "#F59E0B" },
-              { label: "Confirmadas", value: confirmadas, color: "#22C55E" },
+              { label: "Total", value: citas.length, color: "var(--accent)" },
+              { label: "Pendientes", value: pendientes, color: "var(--warning)" },
+              { label: "Confirmadas", value: confirmadas, color: "var(--success)" },
             ].map((s) => (
-              <div key={s.label} className="text-center p-2 rounded-xl" style={{ background: "#F9FAFB" }}>
+              <div key={s.label} className="text-center p-3 rounded-xl"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 <p className="font-black text-xl" style={{ color: s.color }}>{s.value}</p>
-                <p className="text-xs" style={{ color: "#9CA3AF" }}>{s.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <IonSpinner name="crescent" />
-          </div>
+          <div className="flex items-center justify-center h-48"><IonSpinner name="crescent" /></div>
         ) : citas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 gap-3" style={{ color: "#9CA3AF" }}>
+          <div className="flex flex-col items-center justify-center h-64 gap-3" style={{ color: "var(--text-muted)" }}>
             <Calendar size={48} className="opacity-30" />
             <p className="text-base font-semibold">No hay citas para hoy</p>
             {canEdit && (
               <button onClick={() => history.push("/citas/nueva")}
-                className="mt-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold"
-                style={{ background: "#0F2A3D" }}>
+                className="press mt-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold"
+                style={{ background: "var(--accent)" }}>
                 + Agendar cita
               </button>
             )}
@@ -121,58 +114,62 @@ const AgendaDia: React.FC = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
-                  style={{ borderLeft: `4px solid ${cfg.color}`, opacity: cita.estado === "cancelada" ? 0.6 : 1 }}
+                  className="rounded-2xl overflow-hidden"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)", opacity: cita.estado === "cancelada" ? 0.6 : 1 }}
                 >
                   <div className="px-4 py-4">
                     {/* Hora y estado */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full"
-                          style={{ background: cfg.bg }}>
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: cfg.bg }}>
                           <Clock size={12} style={{ color: cfg.color }} />
                           <span className="text-sm font-bold" style={{ color: cfg.color }}>{hora}</span>
                         </div>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
+                        <span className="text-xs font-semibold" style={{ color: cfg.color }}>{cfg.label}</span>
                         {isPast && (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style={{ background: "rgba(239,68,68,0.12)", color: "var(--danger)" }}>
                             Vencida
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-base">{tipoIcon[cita.tipo_servicio] ?? "🔧"}</span>
-                        <span className="text-xs font-medium capitalize" style={{ color: "#6B7280" }}>
+                        <span className="text-xs font-medium capitalize" style={{ color: "var(--text-muted)" }}>
                           {cita.tipo_servicio}
                         </span>
                       </div>
                     </div>
 
                     {/* Cliente */}
-                    <p className="font-bold text-base mb-1" style={{ color: "#1F2937" }}>
+                    <p className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
                       {cita.cliente?.nombre} {cita.cliente?.apellido}
                     </p>
 
                     {/* Moto */}
                     <div className="flex items-center gap-1.5 mb-1">
-                      <Bike size={13} style={{ color: "#9CA3AF" }} />
-                      <p className="text-sm" style={{ color: "#6B7280" }}>
+                      <Bike size={13} style={{ color: "var(--text-muted)" }} />
+                      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                         {cita.motocicleta?.marca} {cita.motocicleta?.modelo} — {cita.motocicleta?.placa}
                       </p>
                     </div>
 
                     {/* Teléfono */}
                     <div className="flex items-center gap-1.5 mb-3">
-                      <Phone size={13} style={{ color: "#9CA3AF" }} />
-                      <p className="text-sm" style={{ color: "#6B7280" }}>{cita.cliente?.telefono}</p>
+                      <Phone size={13} style={{ color: "var(--text-muted)" }} />
+                      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{cita.cliente?.telefono}</p>
                     </div>
 
                     {/* Descripción */}
-                    <p className="text-xs p-2.5 rounded-xl mb-3" style={{ background: "#F9FAFB", color: "#4B5563" }}>
-                      {cita.descripcion_problema}
-                    </p>
+                    {cita.descripcion_problema && (
+                      <p className="text-xs p-2.5 rounded-xl mb-3" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)" }}>
+                        {cita.descripcion_problema}
+                      </p>
+                    )}
 
                     {/* Duración */}
-                    <p className="text-xs mb-3" style={{ color: "#9CA3AF" }}>
+                    <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
                       Duración estimada: {cita.duracion_estimada_min} min
                     </p>
 
@@ -180,23 +177,22 @@ const AgendaDia: React.FC = () => {
                     {canEdit && cita.estado === "pendiente" && (
                       <div className="flex gap-2">
                         <button onClick={() => confirmar(cita.id)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-                          style={{ background: "#22C55E" }}>
+                          className="press flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold text-white"
+                          style={{ background: "var(--success)" }}>
                           <CheckCircle2 size={15} /> Confirmar
                         </button>
                         <button onClick={() => cancelar(cita.id)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                          style={{ background: "#FEF2F2", color: "#DC2626" }}>
+                          className="press flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold"
+                          style={{ background: "rgba(239,68,68,0.12)", color: "var(--danger)" }}>
                           <XCircle size={15} /> Cancelar
                         </button>
                       </div>
                     )}
 
                     {cita.estado === "confirmada" && canEdit && (
-                      <button
-                        onClick={() => history.push("/ordenes-trabajo/nueva")}
-                        className="w-full py-2.5 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-1.5"
-                        style={{ background: "#0F2A3D" }}>
+                      <button onClick={() => history.push("/ordenes-trabajo/nueva")}
+                        className="press w-full py-2.5 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-1.5"
+                        style={{ background: "var(--accent)" }}>
                         <ChevronRight size={15} /> Crear OT de ingreso
                       </button>
                     )}

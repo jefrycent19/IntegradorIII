@@ -58,6 +58,18 @@ const ClienteDetalle: React.FC = () => {
     </IonPage>
   );
 
+  // Guard: si no hay cliente (p.ej. la ruta /clientes/nuevo monta esta vista en
+  // segundo plano con id="nuevo"), no reventamos — evita tumbar toda la app.
+  if (!cliente) return (
+    <IonPage>
+      <IonContent className="ion-padding">
+        <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
+          Cliente no encontrado.
+        </div>
+      </IonContent>
+    </IonPage>
+  );
+
   return (
     <IonPage>
       <IonHeader>

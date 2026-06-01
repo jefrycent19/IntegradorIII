@@ -55,6 +55,17 @@ const OrdenTrabajoDetalle: React.FC = () => {
     </IonPage>
   );
 
+  // Guard null: /ordenes-trabajo/nueva monta esta vista en segundo plano (id="nueva").
+  if (!ot) return (
+    <IonPage>
+      <IonContent className="ion-padding">
+        <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
+          Orden de trabajo no encontrada.
+        </div>
+      </IonContent>
+    </IonPage>
+  );
+
   const etiquetaEstado: Record<string, string> = {
     recepcion: "Recepción", diagnostico: "Diagnóstico",
     reparacion: "En Reparación", lista: "Lista p/Entregar", entregada: "Entregada",
