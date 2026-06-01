@@ -27,6 +27,15 @@ USER www-data
 # Copiamos el código de la app
 COPY --chown=www-data:www-data . .
 
+# Laravel necesita estos directorios escribibles, pero suelen estar en
+# .gitignore y no llegan al repo. Los creamos antes de composer install
+# porque el script post-install (package:discover) escribe en bootstrap/cache.
+RUN mkdir -p bootstrap/cache \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs
+
 # Instalamos dependencias PHP de producción con autoloader optimizado
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
