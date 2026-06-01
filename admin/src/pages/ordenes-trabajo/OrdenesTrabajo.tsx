@@ -94,14 +94,14 @@ const OrdenesTrabajo: React.FC = () => {
             const active = estado === e.key;
             return (
               <button key={e.key} onClick={() => setEstado(e.key)}
-                className="press flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
+                className="press flex-shrink-0 flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-semibold"
                 style={{
                   background: active ? `${e.color}26` : "var(--bg-hover)",
                   color: active ? e.color : "var(--text-secondary)",
                   border: `1px solid ${active ? e.color : "var(--border-light)"}`,
                   boxShadow: active ? `0 2px 14px ${e.color}40` : "none",
                 }}>
-                <span className="w-2 h-2 rounded-full flex-shrink-0"
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ background: e.color, opacity: active ? 1 : 0.8, boxShadow: active ? `0 0 6px ${e.color}` : "none" }} />
                 {e.label}
               </button>
