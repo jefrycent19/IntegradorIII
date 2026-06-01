@@ -114,9 +114,11 @@ ion-refresher        { --background: var(--bg-base); }
 
 /* Toolbars con color="primary" → oscuros como el resto (no naranja chillón) */
 ion-toolbar.ion-color-primary {
-  --background: var(--bg-surface);
-  --color: var(--text-primary);
-  --border-color: var(--border);
+  --background: var(--bg-surface) !important;
+  --color: var(--text-primary) !important;
+  --border-color: var(--border) !important;
+  --ion-color-base: var(--bg-surface) !important;
+  --ion-color-contrast: var(--text-primary) !important;
 }
 ion-toolbar.ion-color-primary ion-button,
 ion-toolbar.ion-color-primary ion-back-button,
