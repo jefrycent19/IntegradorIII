@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'rol' => \App\Http\Middleware\CheckRol::class,
         ]);
 
+        // Confía en el proxy de Railway/PaaS — necesario para que Laravel
+        // detecte HTTPS correctamente y genere URLs/cookies seguras.
+        $middleware->trustProxies(at: '*');
+
         // Rate limiting para la API — protege contra abuso (60 req/min por usuario)
         $middleware->throttleApi('60,1');
     })

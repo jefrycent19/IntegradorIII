@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | URL del panel admin (Ionic). Se usa para construir los enlaces de
+    | recuperación de contraseña. Definida aquí para que sobreviva a
+    | `config:cache` en producción (env() directo no funciona cacheado).
+    |
+    */
+
+    'frontend_url' => env('APP_FRONTEND_URL', 'http://localhost:5173'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

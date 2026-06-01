@@ -1,0 +1,36 @@
+# Dependencias (se instalan dentro de la imagen)
+vendor/
+node_modules/
+
+# Entorno y secretos — NUNCA dentro de la imagen (Railway inyecta las vars)
+.env
+.env.*
+!.env.example
+
+# Git y editor
+.git/
+.gitignore
+.gitattributes
+.editorconfig
+
+# Logs y caché local
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*.php
+bootstrap/cache/*.php
+
+# Tests y herramientas de dev
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# SQLite local
+database/*.sqlite
+
+# Build frontend (no aplica al backend)
+public/build/
+
+# Docs y otros
+README.md
+DEPLOY_RAILWAY.md

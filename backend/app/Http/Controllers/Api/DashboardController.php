@@ -134,14 +134,18 @@ class DashboardController extends Controller
             : 0;
 
         // --- Facturación últimos 7 días para tendencia ---
-        $tendencia = collect(range(6, 0))->map(function ($diasAtras) {
+        // Una sola query agrupada por día en lugar de 7 queries en bucle.
+        $ventasPorDia = Factura::where('estado', 'pagada')
+            ->whereDate('fecha', '>=', today()->subDays(6))
+            ->selectRaw('DATE(fecha) as dia, SUM(total) as total')
+            ->groupBy('dia')
+            ->pluck('total', 'dia');
+
+        $tendencia = collect(range(6, 0))->map(function ($diasAtras) use ($ventasPorDia) {
             $fecha = today()->subDays($diasAtras);
-            $total = Factura::where('estado', 'pagada')
-                ->whereDate('fecha', $fecha)
-                ->sum('total');
             return [
                 'fecha' => $fecha->format('d/m'),
-                'total' => round($total, 2),
+                'total' => round((float) ($ventasPorDia[$fecha->format('Y-m-d')] ?? 0), 2),
             ];
         });
 
