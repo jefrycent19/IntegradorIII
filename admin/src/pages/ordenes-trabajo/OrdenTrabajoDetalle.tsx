@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import Button from "../../components/ui/Button";
 
 const fmt = (n: any) => "₡" + Number(n ?? 0).toLocaleString("es-CR", { maximumFractionDigits: 0 });
 
@@ -157,11 +158,9 @@ const OrdenTrabajoDetalle: React.FC = () => {
 
             {/* Acción primaria: avanzar estado */}
             {ot.estado !== "entregada" && puedeGestionar && (
-              <button onClick={avanzarEstado}
-                className="press w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #F97316, #EA580C)", boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
-                {siguiente[ot.estado]} <ArrowRight size={16} />
-              </button>
+              <Button variant="primary" size="lg" block onClick={avanzarEstado} iconAfter={<ArrowRight size={16} />}>
+                {siguiente[ot.estado]}
+              </Button>
             )}
 
             {/* Acciones secundarias */}
@@ -169,24 +168,20 @@ const OrdenTrabajoDetalle: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {puedeGestionar && (
                   <>
-                    <button onClick={() => history.push(`/ordenes-trabajo/${id}/reasignar`)}
-                      className="press flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-                      style={{ background: "var(--bg-hover)", color: "var(--text-secondary)" }}>
-                      <UserCog size={14} /> Reasignar
-                    </button>
-                    <button onClick={() => history.push(`/ordenes-trabajo/${id}/notificar`)}
-                      className="press flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-                      style={{ background: "var(--bg-hover)", color: "var(--text-secondary)" }}>
-                      <Bell size={14} /> Notificar
-                    </button>
+                    <Button variant="default" block onClick={() => history.push(`/ordenes-trabajo/${id}/reasignar`)} iconBefore={<UserCog size={14} />}>
+                      Reasignar
+                    </Button>
+                    <Button variant="default" block onClick={() => history.push(`/ordenes-trabajo/${id}/notificar`)} iconBefore={<Bell size={14} />}>
+                      Notificar
+                    </Button>
                   </>
                 )}
                 {tieneRol("Administrador", "Recepcionista") && (
-                  <button onClick={() => history.push(`/ordenes-trabajo/${id}/comprobante`)}
-                    className="press flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold col-span-2"
-                    style={{ background: "var(--bg-hover)", color: "var(--text-secondary)" }}>
-                    <Printer size={14} /> Comprobante de recepción
-                  </button>
+                  <div className="col-span-2">
+                    <Button variant="default" block onClick={() => history.push(`/ordenes-trabajo/${id}/comprobante`)} iconBefore={<Printer size={14} />}>
+                      Comprobante de recepción
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
