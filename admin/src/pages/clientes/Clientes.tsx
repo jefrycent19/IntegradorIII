@@ -63,7 +63,7 @@ const Clientes: React.FC = () => {
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Nombre, cedula o telefono..."
-              className="w-full pl-10 pr-9 py-3 text-sm rounded-xl outline-none transition-all"
+              className="w-full pl-10 pr-9 py-3 text-sm rounded-xl outline-none transition-colors"
               style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
               onFocus={e => e.currentTarget.style.border = "1px solid var(--accent)"}
               onBlur={e => e.currentTarget.style.border = "1px solid var(--border)"} />
@@ -92,10 +92,10 @@ const Clientes: React.FC = () => {
               return (
                 <motion.button key={c.id} variants={fadeUp}
                   onClick={() => history.push(`/clientes/${c.id}`)}
-                  className="w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all"
+                  className="press w-full flex items-center gap-3 p-4 rounded-2xl text-left"
                   style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-                  onMouseEnter={e => { e.currentTarget.style.border = "1px solid var(--border-light)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.border = "1px solid var(--border)"; e.currentTarget.style.background = "var(--bg-card)"; }}>
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--border-light)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--bg-card)"; }}>
                   {/* Avatar */}
                   <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
                     style={{ background: colors[ci], color: textColors[ci] }}>

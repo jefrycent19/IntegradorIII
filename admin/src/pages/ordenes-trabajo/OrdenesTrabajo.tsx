@@ -80,7 +80,7 @@ const OrdenesTrabajo: React.FC = () => {
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Numero de OT..."
-              className="w-full pl-10 pr-9 py-3 text-sm rounded-xl outline-none transition-all"
+              className="w-full pl-10 pr-9 py-3 text-sm rounded-xl outline-none transition-colors"
               style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
               onFocus={e => e.currentTarget.style.border = "1px solid var(--accent)"}
               onBlur={e => e.currentTarget.style.border = "1px solid var(--border)"} />
@@ -92,7 +92,7 @@ const OrdenesTrabajo: React.FC = () => {
         <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {estados.map(e => (
             <button key={e.key} onClick={() => setEstado(e.key)}
-              className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+              className="press flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold"
               style={{
                 background: estado === e.key ? "var(--accent-subtle)" : "var(--bg-card)",
                 color: estado === e.key ? "var(--accent)" : "var(--text-muted)",
@@ -119,7 +119,7 @@ const OrdenesTrabajo: React.FC = () => {
               return (
                 <motion.button key={ot.id} variants={fadeUp}
                   onClick={() => history.push(`/ordenes-trabajo/${ot.id}`)}
-                  className="w-full p-4 rounded-2xl text-left transition-all"
+                  className="press w-full p-4 rounded-2xl text-left"
                   style={{ background: "var(--bg-card)", border: atrasada ? "1px solid rgba(239,68,68,0.25)" : "1px solid var(--border)" }}
                   onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.borderColor = "var(--border-light)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "var(--bg-card)"; e.currentTarget.style.borderColor = atrasada ? "rgba(239,68,68,0.25)" : "var(--border)"; }}>

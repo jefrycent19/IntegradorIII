@@ -130,7 +130,7 @@ const Login: React.FC = () => {
                           <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
                           <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                             placeholder="correo@taller.com"
-                            className="w-full pl-11 pr-4 py-3.5 text-sm rounded-xl outline-none transition-all"
+                            className="w-full pl-11 pr-4 py-3.5 text-sm rounded-xl outline-none transition-colors"
                             style={{ background: "var(--bg-card)", border: error ? "1px solid var(--danger)" : "1px solid var(--border)", color: "var(--text-primary)" }}
                             onFocus={e => e.currentTarget.style.border = "1px solid var(--accent)"}
                             onBlur={e => e.currentTarget.style.border = error ? "1px solid var(--danger)" : "1px solid var(--border)"} />
@@ -155,7 +155,7 @@ const Login: React.FC = () => {
                           <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
                           <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
                             placeholder="••••••••••"
-                            className="w-full pl-11 pr-11 py-3.5 text-sm rounded-xl outline-none transition-all"
+                            className="w-full pl-11 pr-11 py-3.5 text-sm rounded-xl outline-none transition-colors"
                             style={{ background: "var(--bg-card)", border: error ? "1px solid var(--danger)" : "1px solid var(--border)", color: "var(--text-primary)" }}
                             onFocus={e => e.currentTarget.style.border = "1px solid var(--accent)"}
                             onBlur={e => e.currentTarget.style.border = error ? "1px solid var(--danger)" : "1px solid var(--border)"} />
@@ -183,7 +183,7 @@ const Login: React.FC = () => {
                           padding: "14px 24px", borderRadius: "999px",
                           background: loading ? "var(--border)" : "linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%)",
                           boxShadow: !loading ? "0 4px 32px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.15)" : "none",
-                          transition: "all 0.2s ease",
+                          transition: "box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out)",
                         }}
                         onMouseEnter={e => { if (!loading) { e.currentTarget.style.boxShadow = "0 8px 40px rgba(249,115,22,0.5), inset 0 1px 0 rgba(255,255,255,0.2)"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
                         onMouseLeave={e => { e.currentTarget.style.boxShadow = loading ? "none" : "0 4px 32px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "translateY(0)"; }}>
@@ -237,7 +237,7 @@ const Login: React.FC = () => {
                           <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
                           <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
                             placeholder="correo@taller.com" autoFocus
-                            className="w-full pl-11 pr-4 py-3.5 text-sm rounded-xl outline-none transition-all"
+                            className="w-full pl-11 pr-4 py-3.5 text-sm rounded-xl outline-none transition-colors"
                             style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
                             onFocus={e => e.currentTarget.style.border = "1px solid var(--accent)"}
                             onBlur={e => e.currentTarget.style.border = "1px solid var(--border)"} />
@@ -250,7 +250,7 @@ const Login: React.FC = () => {
                           padding: "14px 24px", borderRadius: "999px",
                           background: (forgotLoading || !forgotEmail) ? "var(--border)" : "linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%)",
                           boxShadow: (!forgotLoading && forgotEmail) ? "0 4px 32px rgba(249,115,22,0.35)" : "none",
-                          transition: "all 0.2s ease",
+                          transition: "box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out)",
                         }}>
                         {forgotLoading
                           ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

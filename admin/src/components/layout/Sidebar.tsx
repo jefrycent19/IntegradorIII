@@ -121,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                 const active = isActive(item.path);
                 return (
                   <button key={item.path} onClick={() => navigate(item.path)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left relative overflow-hidden transition-all duration-150"
+                    className="press w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left relative overflow-hidden"
                     style={{
                       background: active
                         ? "linear-gradient(90deg, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0.04) 100%)"
@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     )}
 
                     {/* Icon bubble */}
-                    <div className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150"
+                    <div className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-150"
                       style={{ background: active ? "rgba(249,115,22,0.18)" : "transparent" }}>
                       <item.icon size={15} strokeWidth={active ? 2.5 : 2}
                         style={{ color: active ? "var(--accent)" : "currentColor" }} />

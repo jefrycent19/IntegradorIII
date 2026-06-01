@@ -23,7 +23,16 @@ const estadoBadge: Record<string, { color: string; bg: string; dot: string }> = 
 };
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
+// Curva ease-out fuerte de Emil (tupla cubic-bezier que framer-motion exige).
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
+const fadeUp  = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE_OUT } } };
+// Reveal de sección: rápido y con ease-out fuerte. El dashboard se ve decenas de
+// veces al día — la entrada debe sentirse instantánea, no coreografiada.
+const section = (delay: number) => ({
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay, duration: 0.3, ease: EASE_OUT },
+});
 
 const StatCard: React.FC<{ label: string; value: number | string; icon: any; color: string; sub?: string }> = ({ label, value, icon: Icon, color, sub }) => (
   <motion.div variants={fadeUp}
@@ -73,7 +82,7 @@ const Dashboard: React.FC = () => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64 gap-3">
-            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--border-light)", borderTopColor: "var(--accent)" }} />
+            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--border-light)", borderTopColor: "var(--accent)", animationDuration: "0.6s" }} />
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Cargando...</p>
           </div>
         ) : error ? (
@@ -86,7 +95,7 @@ const Dashboard: React.FC = () => {
               <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Verifica la conexión con el servidor</p>
             </div>
             <button onClick={cargar}
-              className="px-5 py-2 rounded-xl text-sm font-semibold transition-all"
+              className="press px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
               style={{ background: "var(--accent)", color: "#fff" }}
               onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
               onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
@@ -107,7 +116,7 @@ const Dashboard: React.FC = () => {
             </motion.div>
 
             {/* Facturación + métricas */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <motion.div {...section(0.04)}>
               <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
                   <div className="flex items-center gap-2">
@@ -139,7 +148,7 @@ const Dashboard: React.FC = () => {
 
             {/* Alertas semáforo */}
             {(data.ot.semaforo_rojo > 0 || data.ot.semaforo_amarillo > 0) && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+              <motion.div {...section(0.08)}>
                 <div className="rounded-2xl p-4" style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.15)" }}>
                   <div className="flex items-center gap-2 mb-3">
                     <Activity size={14} style={{ color: "var(--warning)" }} />
@@ -171,7 +180,7 @@ const Dashboard: React.FC = () => {
 
             {/* Técnicos */}
             {data.tecnicos_productivos?.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <motion.div {...section(0.12)}>
                 <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                   <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
                     <Wrench size={14} style={{ color: "var(--accent)" }} />
@@ -193,7 +202,7 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* OT activas */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+            <motion.div {...section(0.16)}>
               <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
                   <div className="flex items-center gap-2">
@@ -201,8 +210,10 @@ const Dashboard: React.FC = () => {
                     <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>OT Activas</p>
                   </div>
                   <button onClick={() => history.push("/ordenes-trabajo")}
-                    className="flex items-center gap-1 text-xs font-medium transition-colors"
-                    style={{ color: "var(--accent)" }}>
+                    className="press flex items-center gap-1 text-xs font-medium transition-opacity"
+                    style={{ color: "var(--accent)" }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
+                    onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
                     Ver todas <ChevronRight size={12} />
                   </button>
                 </div>
@@ -215,7 +226,7 @@ const Dashboard: React.FC = () => {
                     const cfg = estadoBadge[ot.estado] ?? estadoBadge.recepcion;
                     return (
                       <button key={ot.id} onClick={() => history.push("/ordenes-trabajo/" + ot.id)}
-                        className="w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors"
+                        className="press w-full flex items-center gap-3 px-5 py-3.5 text-left"
                         style={{ borderBottom: i < data.ultimas_ot.length - 1 ? "1px solid var(--border)" : "none" }}
                         onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>

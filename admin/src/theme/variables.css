@@ -18,7 +18,7 @@
   /* Tipografía */
   --text-primary:   #F8FAFC;
   --text-secondary: #94A3B8;
-  --text-muted:     #475569;
+  --text-muted:     #64748B;   /* slate-500 — ~4.3:1 sobre bg-base (antes #475569 daba 2.6:1, ilegible) */
 
   /* Acento principal — naranja mecánico */
   --accent:        #F97316;
@@ -31,6 +31,12 @@
   --warning: #EAB308;
   --danger:  #EF4444;
   --info:    #3B82F6;
+
+  /* Curvas de easing fuertes (Emil Kowalski) — las nativas de CSS son muy débiles.
+     Solo animar transform/opacity, bajo 300ms, nunca ease-in. */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);      /* entradas/salidas y feedback (el más usado) */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);     /* movimiento/morph en pantalla */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);      /* drawers estilo iOS */
 
   /* Ionic overrides */
   --ion-font-family:      'Inter', sans-serif;
@@ -47,6 +53,38 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { font-family: 'Inter', -apple-system, sans-serif; }
 button, select { background: transparent; border: none; outline: none; }
+
+/* Foco visible accesible — reemplaza el outline:none SOLO para navegación por teclado.
+   El mouse no dispara :focus-visible, así que no afecta el look al hacer clic. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Feedback al presionar (opt-in con la clase .press) — scale sutil al click/tap.
+   No es global en `button` a propósito: muchos botones ya usan transform para
+   posicionarse (íconos absolutos) y un scale global los rompería.
+   Incluye opacity/background/color en la transición para no pisar los hover. */
+.press {
+  transition: transform 0.14s var(--ease-out),
+              opacity 0.14s var(--ease-out),
+              background-color 0.14s var(--ease-out),
+              border-color 0.14s var(--ease-out),
+              color 0.14s var(--ease-out);
+}
+.press:active:not(:disabled) { transform: scale(0.97); }
+
+/* Respeto a prefers-reduced-motion — reduce movimiento a casi instantáneo,
+   conservando opacidad/color que ayudan a comprender. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.08s !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* Ionic dark override */
 ion-app, ion-page    { background: var(--bg-base) !important; }
