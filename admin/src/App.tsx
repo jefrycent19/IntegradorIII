@@ -118,48 +118,48 @@ const AppRoutes: React.FC = () => {
         <Private exact path="/reportes"><Reportes /></Private>
 
         <Private exact path="/clientes/nuevo"><ClienteForm /></Private>
-        <Private exact path="/clientes/:id/editar"><ClienteForm /></Private>
-        <Private exact path="/clientes/:id"><ClienteDetalle /></Private>
+        <Private exact path="/clientes/:id(\d+)/editar"><ClienteForm /></Private>
+        <Private exact path="/clientes/:id(\d+)"><ClienteDetalle /></Private>
         <Private exact path="/clientes"><Clientes /></Private>
 
         <Private exact path="/ordenes-trabajo/nueva"><OrdenTrabajoForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/avance"><OtAvanceForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/repuesto"><OtRepuestoForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/diagnostico"><OtDiagnosticoForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/checklist"><OtChecklistForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/factura"><OtFacturaForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/garantia"><OtGarantiaForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/reasignar"><OtReasignarTecnico /></Private>
-        <Private exact path="/ordenes-trabajo/:id/notificar"><OtNotificarCliente /></Private>
-        <Private exact path="/ordenes-trabajo/:id/comprobante"><ComprobanteRecepcion /></Private>
-        <Private exact path="/ordenes-trabajo/:id/evidencia"><OtEvidenciaForm /></Private>
-        <Private exact path="/ordenes-trabajo/:id/timer"><OtTimer /></Private>
-        <Private exact path="/ordenes-trabajo/:id"><OrdenTrabajoDetalle /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/avance"><OtAvanceForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/repuesto"><OtRepuestoForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/diagnostico"><OtDiagnosticoForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/checklist"><OtChecklistForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/factura"><OtFacturaForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/garantia"><OtGarantiaForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/reasignar"><OtReasignarTecnico /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/notificar"><OtNotificarCliente /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/comprobante"><ComprobanteRecepcion /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/evidencia"><OtEvidenciaForm /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)/timer"><OtTimer /></Private>
+        <Private exact path="/ordenes-trabajo/:id(\d+)"><OrdenTrabajoDetalle /></Private>
         <Private exact path="/ordenes-trabajo"><OrdenesTrabajo /></Private>
 
         <Private exact path="/agenda-dia"><AgendaDia /></Private>
         <Private exact path="/mis-ordenes"><MisOrdenesTrabajo /></Private>
 
         <Private exact path="/motocicletas/nueva"><MotocicletaForm /></Private>
-        <Private exact path="/motocicletas/:id/editar"><MotocicletaForm /></Private>
-        <Private exact path="/motocicletas/:id"><MotocicletaDetalle /></Private>
+        <Private exact path="/motocicletas/:id(\d+)/editar"><MotocicletaForm /></Private>
+        <Private exact path="/motocicletas/:id(\d+)"><MotocicletaDetalle /></Private>
         <Private exact path="/motocicletas"><Motocicletas /></Private>
 
         <Private exact path="/citas/nueva"><CitaForm /></Private>
         <Private exact path="/citas"><Citas /></Private>
 
         <Private exact path="/inventario/nuevo"><RepuestoForm /></Private>
-        <Private exact path="/inventario/:id/editar"><RepuestoForm /></Private>
-        <Private exact path="/inventario/:id"><RepuestoDetalle /></Private>
+        <Private exact path="/inventario/:id(\d+)/editar"><RepuestoForm /></Private>
+        <Private exact path="/inventario/:id(\d+)"><RepuestoDetalle /></Private>
         <Private exact path="/inventario"><Inventario /></Private>
 
-        <Private exact path="/facturacion/:id"><FacturaDetalle /></Private>
+        <Private exact path="/facturacion/:id(\d+)"><FacturaDetalle /></Private>
         <Private exact path="/facturacion"><Facturacion /></Private>
 
         <Private exact path="/carga-tecnicos"><CargaTecnicos /></Private>
 
         <Private exact path="/usuarios/nuevo"><UsuarioForm /></Private>
-        <Private exact path="/usuarios/:id/editar"><UsuarioForm /></Private>
+        <Private exact path="/usuarios/:id(\d+)/editar"><UsuarioForm /></Private>
         <Private exact path="/usuarios"><Usuarios /></Private>
 
         <Private exact path="/solicitudes-web"><SolicitudesCitaWeb /></Private>
