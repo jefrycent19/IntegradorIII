@@ -12,12 +12,12 @@ import { useCanEdit } from "../../hooks/useCanEdit";
 import { motion } from "framer-motion";
 
 const estados = [
-  { key: "todos",       label: "Todos",       color: "var(--text-muted)" },
-  { key: "recepcion",   label: "Recepción",   color: "var(--text-secondary)" },
+  { key: "todos",       label: "Todos",       color: "#F97316" },
+  { key: "recepcion",   label: "Recepción",   color: "#94A3B8" },
   { key: "diagnostico", label: "Diagnóstico", color: "#EAB308" },
-  { key: "reparacion",  label: "Reparación",  color: "var(--info)" },
-  { key: "lista",       label: "Lista",       color: "var(--success)" },
-  { key: "entregada",   label: "Entregada",   color: "var(--text-muted)" },
+  { key: "reparacion",  label: "Reparación",  color: "#3B82F6" },
+  { key: "lista",       label: "Lista",       color: "#22C55E" },
+  { key: "entregada",   label: "Entregada",   color: "#64748B" },
 ];
 
 const prioColor: Record<string, string> = {
@@ -88,19 +88,26 @@ const OrdenesTrabajo: React.FC = () => {
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {estados.map(e => (
-            <button key={e.key} onClick={() => setEstado(e.key)}
-              className="press flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold"
-              style={{
-                background: estado === e.key ? "var(--accent-subtle)" : "var(--bg-card)",
-                color: estado === e.key ? "var(--accent)" : "var(--text-muted)",
-                border: estado === e.key ? "1px solid var(--accent)" : "1px solid var(--border)",
-              }}>
-              {e.label}
-            </button>
-          ))}
+        {/* Filtros por estado — chips con color semántico */}
+        <div className="px-4 pb-3 flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          {estados.map(e => {
+            const active = estado === e.key;
+            return (
+              <button key={e.key} onClick={() => setEstado(e.key)}
+                className="press flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold"
+                style={{
+                  background: active ? `${e.color}22` : "var(--bg-card)",
+                  color: active ? e.color : "var(--text-secondary)",
+                  border: `1px solid ${active ? e.color : "var(--border)"}`,
+                  boxShadow: active ? `0 2px 12px ${e.color}33` : "none",
+                }}>
+                {e.key !== "todos" && (
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: e.color, opacity: active ? 1 : 0.65 }} />
+                )}
+                {e.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Lista */}
