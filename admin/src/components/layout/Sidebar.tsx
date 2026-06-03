@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     (path !== "/dashboard" && location.pathname.startsWith(path));
 
   const rolColor: Record<string, { bg: string; text: string }> = {
-    "Administrador":  { bg: "rgba(249,115,22,0.15)",  text: "var(--accent)" },
+    "Administrador":  { bg: "rgba(220,38,38,0.15)",   text: "var(--accent)" },
     "Gerente":        { bg: "rgba(168,85,247,0.15)",   text: "#a855f7" },
     "Jefe de Taller": { bg: "rgba(34,197,94,0.15)",    text: "#22c55e" },
     "Técnico":        { bg: "rgba(59,130,246,0.15)",   text: "#3b82f6" },
@@ -80,9 +80,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
         <div className="flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 rounded-xl blur-lg opacity-70" style={{ background: "rgba(249,115,22,0.5)" }} />
+              <div className="absolute inset-0 rounded-xl blur-lg opacity-60" style={{ background: "rgba(220,38,38,0.5)" }} />
               <div className="relative w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #F97316 0%, #DC6803 100%)", boxShadow: "0 4px 12px rgba(249,115,22,0.4)" }}>
+                style={{ background: "#DC2626", boxShadow: "0 4px 16px rgba(220,38,38,0.4)" }}>
                 <Wrench size={19} className="text-white" strokeWidth={2.5} />
               </div>
             </div>
@@ -124,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     className="press w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left relative overflow-hidden"
                     style={{
                       background: active
-                        ? "linear-gradient(90deg, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0.04) 100%)"
+                        ? "linear-gradient(90deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.04) 100%)"
                         : "transparent",
                       color: active ? "var(--text-primary)" : "var(--text-secondary)",
                     }}
@@ -149,7 +149,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
                     {/* Icon bubble */}
                     <div className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-150"
-                      style={{ background: active ? "rgba(249,115,22,0.18)" : "transparent" }}>
+                      style={{ background: active ? "rgba(220,38,38,0.18)" : "transparent" }}>
                       <item.icon size={15} strokeWidth={active ? 2.5 : 2}
                         style={{ color: active ? "var(--accent)" : "currentColor" }} />
                     </div>
@@ -176,7 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             {/* Avatar with gradient ring */}
             <div className="relative flex-shrink-0">
               <div className="absolute inset-[-2px] rounded-full"
-                style={{ background: "linear-gradient(135deg, var(--accent) 0%, #DC2626 100%)" }} />
+                style={{ background: "linear-gradient(135deg, #DC2626 0%, #7F1D1D 100%)" }} />
               <div className="relative w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-black"
                 style={{ background: "var(--bg-base)" }}>
                 {user?.nombre?.[0]}{user?.apellido?.[0]}

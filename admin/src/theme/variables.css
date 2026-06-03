@@ -3,28 +3,28 @@
 @import "tailwindcss/utilities" layer(utilities);
 
 /* ================================================
-   GARAGE PRO — Design System
-   Oscuro · Bold · Naranja mecánico
+   MOTO TALLER — Design System
+   Negro · Rojo · Gris · Enterprise
    ================================================ */
 :root {
   /* Superficies */
-  --bg-base:    #070B18;
-  --bg-surface: #0D1425;
-  --bg-card:    #111827;
-  --bg-hover:   #1A2340;
-  --border:     #1E2D45;
-  --border-light: #243352;
+  --bg-base:    #0C0C0C;
+  --bg-surface: #141414;
+  --bg-card:    #1E1E1E;
+  --bg-hover:   #272727;
+  --border:     #2E2E2E;
+  --border-light: #3A3A3A;
 
   /* Tipografía */
-  --text-primary:   #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted:     #64748B;   /* slate-500 — ~4.3:1 sobre bg-base (antes #475569 daba 2.6:1, ilegible) */
+  --text-primary:   #F5F5F5;
+  --text-secondary: #9E9E9E;
+  --text-muted:     #616161;
 
-  /* Acento principal — naranja mecánico */
-  --accent:        #F97316;
-  --accent-light:  #FB923C;
-  --accent-glow:   rgba(249,115,22,0.25);
-  --accent-subtle: rgba(249,115,22,0.08);
+  /* Acento principal — rojo enterprise */
+  --accent:        #DC2626;
+  --accent-light:  #EF4444;
+  --accent-glow:   rgba(220,38,38,0.28);
+  --accent-subtle: rgba(220,38,38,0.08);
 
   /* Colores de estado */
   --success: #22C55E;
@@ -34,19 +34,19 @@
 
   /* Curvas de easing fuertes (Emil Kowalski) — las nativas de CSS son muy débiles.
      Solo animar transform/opacity, bajo 300ms, nunca ease-in. */
-  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);      /* entradas/salidas y feedback (el más usado) */
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);     /* movimiento/morph en pantalla */
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);      /* drawers estilo iOS */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Ionic overrides */
   --ion-font-family:      'Inter', sans-serif;
-  --ion-background-color: #070B18;
-  --ion-text-color:       #F8FAFC;
-  --ion-color-primary:    #F97316;
-  --ion-color-primary-rgb: 249,115,22;
+  --ion-background-color: #0C0C0C;
+  --ion-text-color:       #F5F5F5;
+  --ion-color-primary:    #DC2626;
+  --ion-color-primary-rgb: 220,38,38;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-shade:    #EA6C0B;
-  --ion-color-primary-tint:     #FB923C;
+  --ion-color-primary-shade:    #B91C1C;
+  --ion-color-primary-tint:     #EF4444;
 }
 
 /* Reset y fuente global */
@@ -193,3 +193,4 @@ select option { background: var(--bg-card); color: var(--text-primary); }
 }
 .text-accent { color: var(--accent); }
 .bg-accent   { background: var(--accent); }
+

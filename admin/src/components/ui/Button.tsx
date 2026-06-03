@@ -9,8 +9,8 @@ type Variant = "primary" | "default" | "subtle" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const variants: Record<Variant, { bg: string; hover: string; active: string; color: string; border: string }> = {
-  // Naranja sólido (acción principal)
-  primary: { bg: "#F97316", hover: "#EA580C", active: "#C2410C", color: "#ffffff", border: "transparent" },
+  // Rojo enterprise (acción principal)
+  primary: { bg: "#DC2626", hover: "#B91C1C", active: "#991B1B", color: "#ffffff", border: "transparent" },
   // Gris sutil sobre fondo oscuro (acción estándar) — equivalente al "default" de Atlassian
   default: { bg: "rgba(255,255,255,0.08)", hover: "rgba(255,255,255,0.13)", active: "rgba(255,255,255,0.18)", color: "var(--text-primary)", border: "transparent" },
   // Fantasma (terciario)
